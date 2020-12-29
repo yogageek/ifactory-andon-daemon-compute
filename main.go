@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"iii/ifactory/compute/db"
 	"iii/ifactory/compute/logic"
 	"iii/ifactory/compute/setenv"
@@ -10,8 +11,10 @@ import (
 
 //其他包的init會先執行，因为在编译的时候会先去检查导入的包，首先发现其他包里面的init，然后才会到main包里面的init
 func init() {
+	fmt.Println("DEBUG:", os.Getenv("DEBUG"))
+
 	setFlag()
-	os.Setenv("DEBUG", "true")
+
 	setenv.SetEnv()
 
 	db.StartMongo()

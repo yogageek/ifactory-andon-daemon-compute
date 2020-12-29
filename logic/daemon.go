@@ -20,9 +20,10 @@ func RunDaemonLoop() {
 			// wg := sync.WaitGroup{}
 			// wg.Add(2)
 
-			// wg.Wait()
 			logic_business.Daemon_AbnormalMachineLatest()
 			logic_business.Daemon_AbnormalMachineHist()
+
+			// wg.Wait()
 			timer1.Reset(duration1)
 
 		case <-timer2.C:

@@ -16,7 +16,7 @@
            
             //for deploying, using setEnv(直接在程式中寫setEnv)
             "env": {
-                "debug":true
+                "DEBUG":true
             },
             "args": []
             
