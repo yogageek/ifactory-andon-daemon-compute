@@ -30,6 +30,7 @@ const (
 
 func Daemon_AbnormalMachineHist() {
 	amHist.Inserting()
+	amHist.Deleteing()
 	fmt.Println("------Daemon_AbnormalMachineHist--------")
 }
 
@@ -71,5 +72,9 @@ func (o AmHist) Inserting() {
 			db.Upsert(o.targetCollection, query, valueAndOption)
 		}
 	}()
+}
 
+func (o AmHist) Deleteing() {
+	selector := bson.M{ProcessStatusCodeColumn: ProcessStatusCodeValue}
+	db.Remove(o.sourceCollection, selector)
 }

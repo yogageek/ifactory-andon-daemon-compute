@@ -43,3 +43,11 @@ func Update(collection string, option bson.M, setvalue bson.M) {
 		glog.Error(util.Cerr(err))
 	}
 }
+
+func Remove(collection string, selector interface{}) {
+	c := MongoDB.UseC(collection)
+	err := c.Remove(selector)
+	if err != nil {
+		glog.Error(util.Cerr(err))
+	}
+}

@@ -40,7 +40,7 @@ const (
 func Daemon_AbnormalMachineLatest() {
 	amLatest.Inserting()
 	amLatest.Updating()
-	fmt.Println("-----Daemon_AbnormalMachineLatest------")
+	fmt.Println("------Daemon_AbnormalMachineLatest------")
 }
 
 //select abnormal data from raw data by option key and value

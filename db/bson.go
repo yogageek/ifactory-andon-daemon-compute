@@ -43,7 +43,7 @@ type AbnormalMachineLatest struct {
 	MachineName           string        `json:"MachineName" bson:"MachineName,omitempty"`
 	AbnormalStartTime     time.Time     `json:"AbnormalStartTime" bson:"AbnormalStartTime,omitempty"`
 	AbnormalLastingSecond float64       `json:"AbnormalLastingSecond" bson:"AbnormalLastingSecond,omitempty"`
-	ProcessingStatusCode  int           `json:"ProcessingStatusCode,omitempty" bson:"ProcessingStatusCode,omitempty"`
+	ProcessingStatusCode  *int          `json:"ProcessingStatusCode,omitempty" bson:"ProcessingStatusCode,omitempty"`
 	ProcessingProgress    string        `json:"ProcessingProgress" bson:"ProcessingProgress,omitempty"`
 	ShouldRepairTime      time.Time     `json:"ShouldRepairTime" bson:"ShouldRepairTime,omitempty"`
 	PlanRepairTime        time.Time     `json:"PlanRepairTime" bson:"PlanRepairTime,omitempty"`
@@ -52,17 +52,17 @@ type AbnormalMachineLatest struct {
 	// AbnormalPosition   string    `json:"AbnormalPosition" bson:"AbnormalPosition,omitempty"`
 	// AbnormalSolution   string    `json:"AbnormalSolution" bson:"AbnormalSolution,omitempty"`
 	// Timestamp time.Time `json:"Timestamp" bson:"Timestamp,omitempty"`
-
+	Timestamp time.Time `json:"Timestamp,omitempty" bson:"Timestamp,omitempty"`
 }
 
 func (o *AbnormalMachineLatest) SetDefaultValue() {
 	o.UpdateTime = util.GetNow()
-	o.AbnormalStartTime = util.GetNow()
+	o.AbnormalStartTime = o.Timestamp
 	o.ShouldRepairTime = util_business.GetRepairTime(util.GetNow())
 	o.PlanRepairTime = util_business.GetRepairTime(util.GetNow())
 	o.Type = "data"
 	o.ProcessingProgress = "未指派人員"
-	// o.ProcessingStatusCode = 0
+	o.ProcessingStatusCode = new(int)
 }
 
 //update abnormal lasting second and update time
