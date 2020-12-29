@@ -1,0 +1,75 @@
+package logic_business
+
+import (
+	"fmt"
+	"iii/ifactory/compute/db"
+	"iii/ifactory/compute/util"
+
+	"github.com/golang/glog"
+	"gopkg.in/mgo.v2/bson"
+)
+
+type AmHist struct {
+	sourceCollection string
+	targetCollection string
+}
+
+//注意from/to collection分別操縱的data
+var (
+	amHist = AmHist{
+		sourceCollection: db.AMLatest,
+		targetCollection: db.AMHist,
+	}
+)
+
+const (
+	//抓指定CODE  --->拉去enum
+	ProcessStatusCodeColumn = "ProcessingStatusCode"
+	ProcessStatusCodeValue  = 5
+)
+
+func Daemon_AbnormalMachineHist() {
+	amHist.Inserting()
+	fmt.Println("------Daemon_AbnormalMachineHist--------")
+}
+
+//select abnormal data from raw data by option key and value
+func (o AmHist) FindHistDataFromLatest(column string, value int) (datas []db.AbnormalMachineHist) {
+	search := []bson.M{
+		bson.M{
+			"$match": bson.M{column: value},
+		},
+	}
+	err := db.Match(o.sourceCollection, search, &datas)
+	if err != nil {
+		glog.Error(util.Cerr(err))
+	}
+	return datas
+}
+
+//將latest data依照指定條件拷貝到hist data
+func (o AmHist) Inserting() {
+
+	//select
+	datas := o.FindHistDataFromLatest(ProcessStatusCodeColumn, ProcessStatusCodeValue)
+	// fmt.Printf("AbnormalMachineHistData: %+v\n", datas)
+
+	//logic. insert data into collection base on query(if MachineID not exist)
+	func() {
+		for _, data := range datas {
+			// fmt.Printf("AbnormalMachineHistData: %+v\n", data)
+
+			// 以MachineID當作primaryKey當作query條件
+			query := bson.M{
+				db.PrimaryKey: data.MachineID, //upsert條件, 如果machineId一樣就更新，不一樣就新增
+			}
+
+			//set on insert
+			valueAndOption := bson.M{
+				"$setOnInsert": data, //如果不存在就insert
+			}
+			db.Upsert(o.targetCollection, query, valueAndOption)
+		}
+	}()
+
+}
