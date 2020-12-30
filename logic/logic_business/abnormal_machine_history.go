@@ -75,6 +75,7 @@ func (o AmHist) Inserting() {
 }
 
 func (o AmHist) Deleteing() {
+	//delete latest collection documents by options
 	selector := bson.M{ProcessStatusCodeColumn: ProcessStatusCodeValue}
 	db.Remove(o.sourceCollection, selector)
 }

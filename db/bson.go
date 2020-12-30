@@ -92,5 +92,12 @@ type AbnormalMachineHist struct {
 	ShouldRepairTime      time.Time     `json:"ShouldRepairTime" bson:"ShouldRepairTime,omitempty"`
 	PlanRepairTime        time.Time     `json:"PlanRepairTime" bson:"PlanRepairTime,omitempty"`
 	RepairReceiveTime     time.Time     `json:"RepairReceiveTime" bson:"RepairReceiveTime,omitempty"`
+	CompleteTime          time.Time     `json:"CompleteTime" bson:"CompleteTime,omitempty"`
+	AbnormalCode          string        `json:"AbnormalCode" bson:"AbnormalCode,omitempty"`
+	AbnormalReason        string        `json:"AbnormalReason" bson:"AbnormalReason,omitempty"`
+	AbnormalPosition      string        `json:"AbnormalPosition" bson:"AbnormalPosition,omitempty"`
+	AbnormalSolution      string        `json:"AbnormalSolution" bson:"AbnormalSolution,omitempty"`
+	PrincipalID           string        `json:"PrincipalID" bson:"PrincipalID,omitempty"`
+	PrincipalName         string        `json:"PrincipalName" bson:"PrincipalName,omitempty"`
 	// UpdateTime            time.Time     `json:"UpdateTime" bson:"UpdateTime,omitempty"`
 }
