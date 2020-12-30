@@ -8,9 +8,17 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+type queryKey struct {
+	PrimaryKey string
+	ID         string
+}
+
 //called by other pkg
 var (
-	PrimaryKey = "MachineID"
+	QueryKey = queryKey{
+		PrimaryKey: "MachineID",
+		ID:         "id",
+	}
 )
 
 type MachineRawData struct {

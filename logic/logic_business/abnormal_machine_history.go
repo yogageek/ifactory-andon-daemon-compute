@@ -60,16 +60,16 @@ func (o AmHist) Inserting() {
 		for _, data := range datas {
 			// fmt.Printf("AbnormalMachineHistData: %+v\n", data)
 
-			// 以MachineID當作primaryKey當作query條件
-			query := bson.M{
-				db.PrimaryKey: data.MachineID, //upsert條件, 如果machineId一樣就更新，不一樣就新增
-			}
+			// 以ID當作primaryKey當作query條件
+			// query := bson.M{
+			// 	db.QueryKey.ID: data.Id, //upsert條件, 如果Id一樣就更新，不一樣就新增
+			// }
 
-			//set on insert
-			valueAndOption := bson.M{
-				"$setOnInsert": data, //如果不存在就insert
-			}
-			db.Upsert(o.targetCollection, query, valueAndOption)
+			// //set on insert
+			// valueAndOption := bson.M{
+			// 	"$setOnInsert": data, //如果不存在就insert
+			// }
+			db.Insert(o.targetCollection, data)
 		}
 	}()
 }

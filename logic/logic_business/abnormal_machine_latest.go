@@ -81,7 +81,7 @@ func (o AmLatest) Inserting() {
 
 			// 以MachineID當作primaryKey當作query條件
 			query := bson.M{
-				db.PrimaryKey: data.MachineID, //upsert條件, 如果machineId一樣就更新，不一樣就新增
+				db.QueryKey.PrimaryKey: data.MachineID, //upsert條件, 如果machineId一樣就更新，不一樣就新增
 			}
 
 			//set on insert
@@ -101,7 +101,7 @@ func (o AmLatest) Inserting() {
 
 			// 以MachineID當作primaryKey當作query條件
 			query := bson.M{
-				db.PrimaryKey: data.MachineID, //upsert條件, 如果machineId一樣就更新，不一樣就新增
+				db.QueryKey.PrimaryKey: data.MachineID, //upsert條件, 如果machineId一樣就更新，不一樣就新增
 			}
 
 			//set on insert

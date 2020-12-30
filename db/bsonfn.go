@@ -36,6 +36,14 @@ func Upsert(collection string, query bson.M, setvalue interface{}) {
 	}
 }
 
+func Insert(collection string, v interface{}) {
+	c := MongoDB.UseC(collection)
+	err := c.Insert(v)
+	if err != nil {
+		glog.Error(util.Cerr(err))
+	}
+}
+
 func Update(collection string, option bson.M, setvalue bson.M) {
 	c := MongoDB.UseC(collection)
 	err := c.Update(option, setvalue)
