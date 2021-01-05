@@ -4,6 +4,7 @@ import (
 	"iii/ifactory/compute/util"
 
 	"github.com/golang/glog"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -27,13 +28,14 @@ func Match(collection string, searchs interface{}, result interface{}) error {
 	return nil
 }
 
-func Upsert(collection string, query bson.M, setvalue interface{}) {
+func Upsert(collection string, query bson.M, setvalue interface{}) (info *mgo.ChangeInfo) {
 	c := MongoDB.UseC(collection)
 	i, err := c.Upsert(query, setvalue)
 	util.PrintJson(i)
 	if err != nil {
 		glog.Error(util.Cerr(err))
 	}
+	return i
 }
 
 func Insert(collection string, v interface{}) {

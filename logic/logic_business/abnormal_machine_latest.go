@@ -6,6 +6,7 @@ import (
 	"iii/ifactory/compute/util"
 
 	"github.com/golang/glog"
+	"github.com/imroc/req"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -40,6 +41,7 @@ const (
 func Daemon_AbnormalMachineLatest() {
 	amLatest.Inserting()
 	amLatest.Updating()
+	amLatest.DoSomething()
 	fmt.Println("------Daemon_AbnormalMachineLatest------")
 }
 
@@ -82,6 +84,7 @@ func (o AmLatest) Inserting() {
 			// 以MachineID當作primaryKey當作query條件
 			query := bson.M{
 				db.QueryKey.PrimaryKey: data.MachineID, //upsert條件, 如果machineId一樣就更新，不一樣就新增
+				db.QueryKey.EventCode:  data.EventCode, //新增eventcode條件
 			}
 
 			//set on insert
@@ -92,6 +95,7 @@ func (o AmLatest) Inserting() {
 		}
 	}()
 
+	/*deprecated
 	datas = o.FindAbnormalDataFromRaw(AbnormalColumnForPanel, AbnormalValueForPanel)
 	//logic. insert data into collection base on query(if MachineID not exist)
 	func() {
@@ -111,6 +115,7 @@ func (o AmLatest) Inserting() {
 			db.Upsert(o.targetCollection, query, valueAndOption)
 		}
 	}()
+	*/
 }
 
 //定時更新collection
@@ -163,3 +168,26 @@ func structToBson(v interface{}) (doc *bson.M, err error) {
 // 		fmt.Println(err)
 // 	}
 // }
+
+func (o AmLatest) DoSomething() {
+	//select
+	datas := o.FindAbnormalData()
+	for _, data := range datas {
+		trigger(data)
+	}
+}
+
+func trigger(i interface{}) ([]byte, error) {
+	url := "https://ifactory-api-notification-andon-eks005.sa.wise-paas.com/andon/api/v1.0/notification"
+
+	//convert object to json
+	param := req.BodyJSON(&i)
+
+	//res就是打api成功拿到的response, 如果打失敗則拿到err
+	res, err := util.DoAPI("POST", url, param)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}

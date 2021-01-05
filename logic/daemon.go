@@ -21,7 +21,7 @@ func RunDaemonLoop() {
 			// wg.Add(2)
 
 			logic_business.Daemon_AbnormalMachineLatest()
-			logic_business.Daemon_AbnormalMachineHist()
+			// logic_business.Daemon_AbnormalMachineHist()
 
 			// wg.Wait()
 			timer1.Reset(duration1)

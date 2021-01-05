@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"iii/ifactory/compute/util"
 	"iii/ifactory/compute/util/util_business"
 	"time"
@@ -10,6 +11,7 @@ import (
 
 type queryKey struct {
 	PrimaryKey string
+	EventCode  string
 	ID         string
 }
 
@@ -17,6 +19,7 @@ type queryKey struct {
 var (
 	QueryKey = queryKey{
 		PrimaryKey: "MachineID",
+		EventCode:  "EventCode",
 		ID:         "id",
 	}
 )
@@ -45,6 +48,8 @@ type AbnormalMachineLatest struct {
 	Id                    bson.ObjectId `json:"_id,omitempty" bson:"id,omitempty"`
 	UpdateTime            time.Time     `json:"UpdateTime" bson:"UpdateTime,omitempty"`
 	Type                  string        `json:"Type" bson:"Type,omitempty"`
+	EventCode             int           `json:"EventCode" bson:"EventCode,omitempty"`
+	EventID               string        `json:"EventID" bson:"EventID,omitempty"`
 	GroupID               string        `json:"GroupID" bson:"GroupID,omitempty"`
 	GroupName             string        `json:"GroupName" bson:"GroupName,omitempty"`
 	MachineID             string        `json:"MachineID" bson:"MachineID,omitempty"`
@@ -68,7 +73,16 @@ func (o *AbnormalMachineLatest) SetDefaultValue() {
 	o.AbnormalStartTime = o.Timestamp
 	o.ShouldRepairTime = util_business.GetRepairTime(util.GetNow())
 	o.PlanRepairTime = util_business.GetRepairTime(util.GetNow())
-	o.Type = "data"
+	o.EventCode = 1
+	o.EventID = func() string {
+		layout := "2006-01-02"
+		time := o.AbnormalStartTime
+		TimeStr := time.Format(layout)
+		Uid := o.MachineID[0:6]
+		EventCodeStr := fmt.Sprint(o.EventCode)
+		return TimeStr + EventCodeStr + Uid
+	}()
+	o.Type = "Auto"
 	o.ProcessingProgress = "未指派人員"
 	o.ProcessingStatusCode = new(int)
 }
