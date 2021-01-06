@@ -134,14 +134,19 @@ func (o AmLatest) Updating() {
 			fmt.Println("錯誤發生時間:", data.AbnormalStartTime)
 			fmt.Println("現在時間:", util.GetNow())
 			fmt.Println("錯誤持續時間:", data.AbnormalLastingSecond)
-			valueAndOption := bson.M{
+
+			option := db.AbnormalMachineLatest{
+				Id: data.Id,
+			}
+
+			value := bson.M{
 				"$set": db.AbnormalMachineLatest{ //bson.go 的tag bson要帶omitempty, 否則會用default空值寫入
 					UpdateTime:            data.UpdateTime,
 					AbnormalLastingSecond: data.AbnormalLastingSecond,
 				},
 			}
 			// util.PrintJson(valueAndOption)
-			db.Update(o.targetCollection, nil, valueAndOption)
+			db.Update(o.targetCollection, option, value)
 		}
 	}()
 }

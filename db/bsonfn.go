@@ -46,7 +46,7 @@ func Insert(collection string, v interface{}) {
 	}
 }
 
-func Update(collection string, option bson.M, setvalue bson.M) {
+func Update(collection string, option interface{}, setvalue bson.M) {
 	c := MongoDB.UseC(collection)
 	err := c.Update(option, setvalue)
 	if err != nil {
