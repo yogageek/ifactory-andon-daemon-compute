@@ -78,7 +78,7 @@ func (o *AbnormalMachineLatest) SetDefaultValue() {
 		layout := "2006-01-02"
 		time := o.AbnormalStartTime
 		TimeStr := time.Format(layout)
-		Uid := o.MachineID[0:6]
+		Uid := o.MachineID[14:22]
 		EventCodeStr := fmt.Sprint(o.EventCode)
 		return TimeStr + EventCodeStr + Uid
 	}()

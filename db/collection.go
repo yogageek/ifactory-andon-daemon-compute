@@ -1,8 +1,7 @@
 package db
 
 var (
-	AMHist    = "iii.dae.AbnormalMachineHist"
-	AMLatest  = "iii.dae.AbnormalMachineLatest"
-	AMTime    = "iii.dae.AbnormalTimeStatistics"
+	AMHist    = "iii.dae.EventHist"
+	AMLatest  = "iii.dae.EventLatest"
 	AMRawdata = "iii.dae.MachineRawData"
 )
