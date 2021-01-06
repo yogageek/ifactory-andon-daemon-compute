@@ -27,7 +27,7 @@ var (
 type MachineRawData struct {
 	// Id bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	// ID              string `json:"_id"`
-	Id              bson.ObjectId `json:"_id,omitempty" bson:"id,omitempty"`
+	Id              bson.ObjectId `json:"id,omitempty" bson:"_id,omitempty"`
 	GroupID         string        `json:"GroupID"`
 	GroupName       string        `json:"GroupName"`
 	MachineID       string        `json:"MachineID"`
@@ -45,7 +45,7 @@ type MachineRawData struct {
 type AbnormalMachineLatest struct {
 	// ID string `json:"_id"`
 	// Id                    bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	Id                    bson.ObjectId `json:"_id,omitempty" bson:"id,omitempty"`
+	Id                    bson.ObjectId `json:"id,omitempty" bson:"_id,omitempty"`
 	UpdateTime            time.Time     `json:"UpdateTime" bson:"UpdateTime,omitempty"`
 	Type                  string        `json:"Type" bson:"Type,omitempty"`
 	EventCode             int           `json:"EventCode" bson:"EventCode,omitempty"`
@@ -78,7 +78,7 @@ func (o *AbnormalMachineLatest) SetDefaultValue() {
 		layout := "2006-01-02"
 		time := o.AbnormalStartTime
 		TimeStr := time.Format(layout)
-		Uid := o.MachineID[14:22]
+		Uid := o.Id.Hex()[16:24]
 		EventCodeStr := fmt.Sprint(o.EventCode)
 		return TimeStr + EventCodeStr + Uid
 	}()

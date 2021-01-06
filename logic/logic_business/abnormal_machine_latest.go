@@ -173,7 +173,9 @@ func (o AmLatest) DoSomething() {
 	//select
 	datas := o.FindAbnormalData()
 	for _, data := range datas {
-		trigger(data)
+		if data.Type == "Auto" {
+			trigger(data)
+		}
 	}
 }
 
