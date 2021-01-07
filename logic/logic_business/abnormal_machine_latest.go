@@ -181,6 +181,23 @@ func (o AmLatest) DoSomething() {
 		if data.Type == "Auto" && *data.ProcessingStatusCode == 0 {
 			trigger(data)
 		}
+
+		if util.GetNow().After(data.ShouldRepairTime) && data.EventCode < 4 {
+			trigger(data)
+
+			option := db.AbnormalMachineLatest{
+				Id: data.Id,
+			}
+			value := bson.M{
+				"$set": db.AbnormalMachineLatest{ //bson.go 的tag bson要帶omitempty, 否則會用default空值寫入
+					EventCode: 4,
+					// ProcessingStatusCode: func(val int) *int {
+					// 	return &val
+					// }(4),
+				},
+			}
+			db.Update(o.targetCollection, option, value)
+		}
 	}
 }
 
