@@ -1,26 +1,34 @@
 package v1
 
-// . "github.com/logrusorgru/aurora"
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+
+	"github.com/gin-gonic/gin"
+	"github.com/golang/glog"
+	. "github.com/logrusorgru/aurora"
+)
 
 //由於目前對方發送過來的post body內容無法預測規則性，因此收到後先全部存db
 
-// func PostOutbound_waconn(c *gin.Context) {
-// 	sourceId := c.Param("sourceId") //取得URL中参数
-// 	fmt.Println(BrightBlue("------------------waconn-------------------"), sourceId)
+func PostWorkOrder(c *gin.Context) {
+	sourceId := c.Param("sourceId") //取得URL中参数
+	fmt.Println(BrightBlue("------------------waconn-------------------"), sourceId)
 
-// 	body, _ := ioutil.ReadAll(c.Request.Body)
-// 	fmt.Println(BrightBlue(string(body)))
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	fmt.Println(BrightBlue(string(body)))
 
-// 	var v interface{}
-// 	if err := json.Unmarshal(body, &v); err != nil {
-// 		glog.Error(err)
-// 	}
+	var v interface{}
+	if err := json.Unmarshal(body, &v); err != nil {
+		glog.Error(err)
+	}
 
-// 	err := db.Insert(db.Waconn, v)
-// 	if err == nil {
-// 		glog.Info("---waconn inserted---")
-// 	}
-// }
+	// err := db.Insert(db.Waconn, v)
+	// if err == nil {
+	// 	glog.Info("---waconn inserted---")
+	// }
+}
 
 // func PostOutbound_ifpcfg(c *gin.Context) {
 // 	sourceId := c.Param("sourceId") //取得URL中参数

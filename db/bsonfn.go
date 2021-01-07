@@ -19,6 +19,14 @@ func FindAll(collection string, query interface{}, selector interface{}, result 
 	return nil
 }
 
+func Insert(collection string, v interface{}) {
+	c := MongoDB.UseC(collection)
+	err := c.Insert(v)
+	if err != nil {
+		glog.Error(util.Cerr(err))
+	}
+}
+
 //查詢collection中所有資料(根據deviceid,groupid,parentid其中之一) ---#to be deprecated
 func Match(collection string, searchs interface{}, result interface{}) error {
 	err := MongoDB.UseC(collection).Pipe(searchs).All(result)
@@ -36,14 +44,6 @@ func Upsert(collection string, query bson.M, setvalue interface{}) (info *mgo.Ch
 		glog.Error(util.Cerr(err))
 	}
 	return i
-}
-
-func Insert(collection string, v interface{}) {
-	c := MongoDB.UseC(collection)
-	err := c.Insert(v)
-	if err != nil {
-		glog.Error(util.Cerr(err))
-	}
 }
 
 func Update(collection string, option interface{}, setvalue bson.M) {
