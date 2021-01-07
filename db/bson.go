@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"iii/ifactory/compute/util"
 	"iii/ifactory/compute/util/util_business"
+	"math/rand"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -68,6 +69,15 @@ type AbnormalMachineLatest struct {
 	Timestamp time.Time `json:"Timestamp,omitempty" bson:"Timestamp,omitempty"`
 }
 
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+func GetRandomString(n int) string {
+	randBytes := make([]byte, n/2)
+	rand.Read(randBytes)
+	return fmt.Sprintf("%x", randBytes)
+}
+
 func (o *AbnormalMachineLatest) SetDefaultValue() {
 	o.UpdateTime = util.GetNow()
 	o.AbnormalStartTime = o.Timestamp
@@ -76,9 +86,10 @@ func (o *AbnormalMachineLatest) SetDefaultValue() {
 	o.EventCode = 1
 	o.EventID = func() string {
 		layout := "2006-01-02"
-		time := o.AbnormalStartTime
-		TimeStr := time.Format(layout)
-		Uid := o.Id.Hex()[16:24]
+		abnormalStartTime := o.AbnormalStartTime
+		TimeStr := abnormalStartTime.Format(layout)
+		// Uid := o.Id.Hex()[16:24]
+		Uid := bson.NewObjectId().Hex()[16:24]
 		EventCodeStr := fmt.Sprint(o.EventCode)
 		return TimeStr + EventCodeStr + Uid
 	}()
