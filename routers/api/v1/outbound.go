@@ -3,6 +3,11 @@ package v1
 import (
 	"encoding/json"
 	"fmt"
+	"iii/ifactory/compute/db"
+	model "iii/ifactory/compute/model/sfc"
+	"net/http"
+
+	. "iii/ifactory/compute/util/cch/json"
 	"io/ioutil"
 
 	"github.com/gin-gonic/gin"
@@ -13,8 +18,8 @@ import (
 //由於目前對方發送過來的post body內容無法預測規則性，因此收到後先全部存db
 
 func PostWorkOrder(c *gin.Context) {
-	sourceId := c.Param("sourceId") //取得URL中参数
-	fmt.Println(BrightBlue("------------------waconn-------------------"), sourceId)
+	// sourceId := c.Param("sourceId") //取得URL中参数
+	// fmt.Println(BrightBlue("------------------waconn-------------------"), sourceId)
 
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	fmt.Println(BrightBlue(string(body)))
@@ -24,10 +29,23 @@ func PostWorkOrder(c *gin.Context) {
 		glog.Error(err)
 	}
 
-	// err := db.Insert(db.Waconn, v)
-	// if err == nil {
-	// 	glog.Info("---waconn inserted---")
-	// }
+	var wo model.WorkOrder
+	err := FromJson(string(body), &wo)
+	if err != nil {
+		// c.String(http.StatusOK, `error~~~~`)
+
+		// c.JSON(http.StatusBadRequest, gin.H{
+		// 	"code": 1000,
+		// 	"msg":  "xxx",
+		// 	"data": make(map[string]string),
+		// })
+
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	wo.CreateWithDefault()
+	db.Insert(model.C_WorkOrder, wo)
+
 }
 
 // func PostOutbound_ifpcfg(c *gin.Context) {

@@ -1,6 +1,8 @@
 package routers
 
 import (
+	v1 "iii/ifactory/compute/routers/api/v1"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +23,8 @@ func InitRouter() *gin.Engine {
 				"message": "OK",
 			})
 		})
-		// apiv1.POST("/iot-2/evt/waconn/fmt/:sourceId", v1.PostOutbound_waconn)
+
+		apiv1.POST("/workorder", v1.PostWorkOrder)
 		// apiv1.POST("/iot-2/evt/ifpcfg/fmt/:sourceId", v1.PostOutbound_ifpcfg)
 		// apiv1.POST("/iot-2/evt/wacfg/fmt/:sourceId", v1.PostOutbound_wacfg)
 	}

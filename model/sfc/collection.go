@@ -1,4 +1,4 @@
-package model_sfc
+package model
 
 var (
 	C_WorkOrder = "iii.sfc.workorder"
