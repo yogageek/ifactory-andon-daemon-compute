@@ -1,7 +1,7 @@
 package logic
 
 import (
-	"iii/ifactory/compute/logic/logic_business"
+	"iii/ifactory/compute/pkg/logic/compute_logic"
 	"time"
 	// . "measure/logic"
 )
@@ -20,8 +20,8 @@ func RunDaemonLoop() {
 			// wg := sync.WaitGroup{}
 			// wg.Add(2)
 
-			logic_business.Daemon_AbnormalMachineLatest()
-			// logic_business.Daemon_AbnormalMachineHist()
+			compute_logic.Daemon_AbnormalMachineLatest()
+			// compute_logic.Daemon_AbnormalMachineHist()
 
 			// wg.Wait()
 			timer1.Reset(duration1)

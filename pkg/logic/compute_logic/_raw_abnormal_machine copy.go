@@ -1,4 +1,4 @@
-package logic_business
+package compute_logic
 
 import (
 	"fmt"

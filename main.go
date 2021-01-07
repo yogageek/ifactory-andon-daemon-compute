@@ -4,8 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"iii/ifactory/compute/db"
-	"iii/ifactory/compute/logic"
+	"iii/ifactory/compute/pkg/logic"
+
+	"iii/ifactory/compute/routers"
 	"iii/ifactory/compute/setenv"
+	"net/http"
 	"os"
 )
 
@@ -28,16 +31,9 @@ func main() {
 	// time.Sleep(2 * time.Second)
 	doSth()
 
-	// r := middleware.Router()
-	// c := cors.New(cors.Options{
-	// 	AllowedOrigins:   []string{"*"},
-	// 	AllowCredentials: true,
-	// 	AllowedMethods:   []string{"GET", "OPTIONS"},
-	// })
+	//REFACTOR LATER!!!!!! 參考go project layout分到另一個main------------------------->
+	refacLater()
 
-	// handler := c.Handler(r)
-
-	// log.Fatal(http.ListenAndServe(port, handler))
 }
 
 func doSth() {
@@ -45,7 +41,7 @@ func doSth() {
 
 	// r := db.FindAll(db.AMRawdata)
 	// util.PrintJson(r)
-	logic.RunDaemonLoop()
+	go logic.RunDaemonLoop()
 }
 
 func setFlag() {
@@ -63,4 +59,18 @@ func setFlag() {
 func usage() {
 	flag.PrintDefaults()
 	os.Exit(2)
+}
+
+func refacLater() {
+
+	router := routers.InitRouter()
+
+	s := &http.Server{
+		Addr:    fmt.Sprintf(":%d", 8080),
+		Handler: router,
+		// ReadTimeout:    ReadTimeout,
+		// WriteTimeout:   WriteTimeout,
+		// MaxHeaderBytes: 1 << 20,
+	}
+	s.ListenAndServe()
 }

@@ -1,8 +1,10 @@
-package logic_business
+package compute_logic
 
 import (
 	"fmt"
+
 	"iii/ifactory/compute/db"
+	"iii/ifactory/compute/model"
 	"iii/ifactory/compute/util"
 
 	"github.com/golang/glog"
@@ -17,8 +19,8 @@ type AmHist struct {
 //注意from/to collection分別操縱的data
 var (
 	amHist = AmHist{
-		sourceCollection: db.AMLatest,
-		targetCollection: db.AMHist,
+		sourceCollection: model.AMLatest,
+		targetCollection: model.AMHist,
 	}
 )
 
@@ -35,7 +37,7 @@ func Daemon_AbnormalMachineHist() {
 }
 
 //select abnormal data from raw data by option key and value
-func (o AmHist) FindHistDataFromLatest(column string, value int) (datas []db.AbnormalMachineHist) {
+func (o AmHist) FindHistDataFromLatest(column string, value int) (datas []model.AbnormalMachineHist) {
 	search := []bson.M{
 		bson.M{
 			"$match": bson.M{column: value},

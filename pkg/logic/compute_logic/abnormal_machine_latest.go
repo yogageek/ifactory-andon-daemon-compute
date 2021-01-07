@@ -1,8 +1,9 @@
-package logic_business
+package compute_logic
 
 import (
 	"fmt"
 	"iii/ifactory/compute/db"
+	"iii/ifactory/compute/model"
 	"iii/ifactory/compute/util"
 
 	"github.com/golang/glog"
@@ -18,8 +19,8 @@ type AmLatest struct {
 //注意from/to collection分別操縱的data
 var (
 	amLatest = AmLatest{
-		sourceCollection: db.AMRawdata,
-		targetCollection: db.AMLatest,
+		sourceCollection: model.AMRawdata,
+		targetCollection: model.AMLatest,
 	}
 )
 
@@ -46,7 +47,7 @@ func Daemon_AbnormalMachineLatest() {
 }
 
 //select abnormal data from raw data by option key and value
-func (o AmLatest) FindAbnormalDataFromRaw(abnormalColumn string, abnormalValue int) (datas []db.AbnormalMachineLatest) {
+func (o AmLatest) FindAbnormalDataFromRaw(abnormalColumn string, abnormalValue int) (datas []model.AbnormalMachineLatest) {
 	search := []bson.M{
 		bson.M{
 			"$match": bson.M{abnormalColumn: abnormalValue},
@@ -60,7 +61,7 @@ func (o AmLatest) FindAbnormalDataFromRaw(abnormalColumn string, abnormalValue i
 }
 
 //select abnormal data
-func (o AmLatest) FindAbnormalData() (datas []db.AbnormalMachineLatest) {
+func (o AmLatest) FindAbnormalData() (datas []model.AbnormalMachineLatest) {
 	err := db.FindAll(o.targetCollection, nil, nil, &datas)
 	if err != nil {
 		glog.Error(util.Cerr(err))
@@ -83,8 +84,8 @@ func (o AmLatest) Inserting() {
 
 			// 以MachineID當作primaryKey當作query條件
 			query := bson.M{
-				db.QueryKey.PrimaryKey: data.MachineID, //upsert條件, 如果machineId一樣就更新，不一樣就新增
-				db.QueryKey.EventCode:  data.EventCode, //新增eventcode條件
+				model.QueryKey.PrimaryKey: data.MachineID, //upsert條件, 如果machineId一樣就更新，不一樣就新增
+				model.QueryKey.EventCode:  data.EventCode, //新增eventcode條件
 			}
 
 			//set on insert
@@ -135,12 +136,12 @@ func (o AmLatest) Updating() {
 			fmt.Println("現在時間:", util.GetNow())
 			fmt.Println("錯誤持續時間:", data.AbnormalLastingSecond)
 
-			option := db.AbnormalMachineLatest{
+			option := model.AbnormalMachineLatest{
 				Id: data.Id,
 			}
 
 			value := bson.M{
-				"$set": db.AbnormalMachineLatest{ //bson.go 的tag bson要帶omitempty, 否則會用default空值寫入
+				"$set": model.AbnormalMachineLatest{ //bson.go 的tag bson要帶omitempty, 否則會用default空值寫入
 					UpdateTime:            data.UpdateTime,
 					AbnormalLastingSecond: data.AbnormalLastingSecond,
 				},

@@ -1,4 +1,4 @@
-package db
+package model
 
 var (
 	AMHist    = "iii.dae.EventHist"
