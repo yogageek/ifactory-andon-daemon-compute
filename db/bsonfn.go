@@ -8,6 +8,41 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// func L() {
+// 	// var i []interface{}
+// 	var i []model.WorkOrder
+// 	err := Lookup(model.C.Workorder, model.C.Workorder_list, "WorkOrderId", &i)
+// 	fmt.Println(err)
+// 	util.PrintJson(i)
+// 	for _, o := range i {
+// 		fmt.Println(o)
+// 	}
+// }
+
+//關聯查詢 副表物件會存入SubCollection
+func Lookup(collection, subCollection string, primaryKey string, result interface{}) error {
+	lookup := map[string]interface{}{
+		"from":         subCollection,
+		"localField":   primaryKey,
+		"foreignField": primaryKey,
+		"as":           "SubCollection",
+	}
+
+	var querys []interface{}
+	querys = append(
+		querys,
+		map[string]interface{}{
+			"$lookup": lookup,
+		},
+	)
+
+	err := MongoDB.UseC(collection).Pipe(querys).All(result)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // FindAll will find all resources.
 func FindAll(collection string, query interface{}, selector interface{}, result interface{}) error {
 	// Query method to specify the fields to query
