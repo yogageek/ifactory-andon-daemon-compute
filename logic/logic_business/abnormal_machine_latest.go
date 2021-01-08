@@ -178,11 +178,12 @@ func (o AmLatest) DoSomething() {
 	//select
 	datas := o.FindAbnormalData()
 	for _, data := range datas {
+
 		if data.Type == "Auto" && *data.ProcessingStatusCode == 0 {
 			trigger(data)
 		}
 
-		if util.GetNow().After(data.ShouldRepairTime) && data.EventCode < 4 {
+		if util.GetNow().After(data.ShouldRepairTime) && *data.ProcessingStatusCode < 4 {
 			trigger(data)
 
 			option := db.AbnormalMachineLatest{
@@ -190,13 +191,14 @@ func (o AmLatest) DoSomething() {
 			}
 			value := bson.M{
 				"$set": db.AbnormalMachineLatest{ //bson.go 的tag bson要帶omitempty, 否則會用default空值寫入
-					EventCode: 4,
-					// ProcessingStatusCode: func(val int) *int {
-					// 	return &val
-					// }(4),
+					ProcessingStatusCode: func(val int) *int { return &val }(4),
 				},
 			}
 			db.Update(o.targetCollection, option, value)
+		}
+
+		if *data.ProcessingStatusCode == 4 {
+			trigger(data)
 		}
 	}
 }
