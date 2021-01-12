@@ -5,6 +5,7 @@ import (
 	"iii/ifactory/compute/db"
 	"iii/ifactory/compute/model"
 	"iii/ifactory/compute/util"
+	"os"
 
 	"github.com/golang/glog"
 	"github.com/imroc/req"
@@ -205,7 +206,12 @@ func (o AmLatest) DoSomething() {
 }
 
 func trigger(i interface{}) ([]byte, error) {
-	url := "https://ifactory-api-notification-andon-eks005.sa.wise-paas.com/andon/api/v1.0/notification"
+	var url string
+	if os.Getenv("DEBUG") == "true" {
+		url = "https://ifactory-api-notification-ifactoryandondev-eks005.sa.wise-paas.com"
+	} else {
+		url = "https://ifactory-api-notification-andon-eks005.sa.wise-paas.com/andon/api/v1.0/notification"
+	}
 
 	//convert object to json
 	param := req.BodyJSON(&i)
