@@ -63,7 +63,7 @@ func (a *Agg) GenGroup(nestedObject string, groups, firsts, sums []string) inter
 	r := map[string]interface{}{
 		"$group": group,
 	}
-	util.PrintJson(r)
+	// util.PrintJson(r)
 	a.Group = r
 	return r
 }

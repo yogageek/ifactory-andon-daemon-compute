@@ -38,26 +38,43 @@ func (c StatsInfo) GetBSON() (interface{}, error) {
 // SetBSON implements bson.Setter.
 func (c *StatsInfo) SetBSON(raw bson.Raw) error {
 
-	// decoded := new(struct {
-	// 	StationName string  `json:"StationName,omitempty" bson:"StationName"`
-	// 	Quantity    float64 `json:"Quantity" bson:"Quantity"`
-	// })
+	// decoded := new(struct { })
+	type newStatsInfo StatsInfo
+	s := new(newStatsInfo)
 
-	type s StatsInfo
-	decoded := new(s)
-
-	bsonErr := raw.Unmarshal(decoded)
-
-	util.PrintJson(decoded)
-	util.PrintJson(c)
-
-	if bsonErr == nil {
-		// c.value = decimal.NewFromFloat(decoded.Value)
-		// c.currencyCode = decoded.CurrencyCode
-		// return nil
-	} else {
+	bsonErr := raw.Unmarshal(s)
+	if bsonErr != nil {
 		return bsonErr
 	}
+	util.PrintJson(s)
+
+	s.RealCompletedRate = func() float64 {
+		if r := (s.CompletedQty / s.Quantity) * 100; !math.IsNaN(r) {
+			return r
+		}
+		return 0
+	}()
+	s.Status = func() string {
+		switch {
+		case s.CompletedQty < s.Quantity:
+			return "低於標準"
+		case s.CompletedQty > s.Quantity:
+			return "高於標準"
+		default:
+			return "等於標準"
+		}
+	}()
+
+	c.WorkOrderId = s.WorkOrderId
+	c.CompletedQty = s.CompletedQty
+	c.GoodQty = s.GoodQty
+	c.Quantity = s.Quantity
+	c.StationName = s.StationName
+	c.Status = s.Status
+	c.RealCompletedRate = s.RealCompletedRate
+
+	util.PrintJson(c)
+
 	return nil
 }
 func (p *StatsInfo) UnmarshalJSON(data []byte) (err error) {
