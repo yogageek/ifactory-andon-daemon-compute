@@ -24,9 +24,17 @@ func InitRouter() *gin.Engine {
 			})
 		})
 
-		apiv1.POST("/workorder", v1.PostWorkOrder)
-		// apiv1.POST("/iot-2/evt/ifpcfg/fmt/:sourceId", v1.PostOutbound_ifpcfg)
-		// apiv1.POST("/iot-2/evt/wacfg/fmt/:sourceId", v1.PostOutbound_wacfg)
+		// apiv1.GET("/workorders/info", v1.GetWorkOrdersInfo) //列出all wo(包含底下list,product等資訊)
+
+		apiv1.GET("/workorders", v1.GetWorkOrders) //列出all wo
+		// apiv1.GET("/workorderLists", v1.GetWorkOrderLists) //列出all list, 不包含wo
+		// apiv1.GET("/workorder/:workorderId/workorder_list", ) //列出指定wo底下的list, 不包含wo
+
+		apiv1.POST("/workorders", v1.PostWorkOrders)                                 //新增wo (如果有帶list則同時新增list)
+		apiv1.POST("/workorders/:workorderId/workorderLists", v1.PostWorkOrderLists) //新增list到指定wo底下
+
+		// apiv1.PUT("/workorders/:workorderId", v1.PutWorkOrder)
+
 	}
 
 	return r

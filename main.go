@@ -41,6 +41,8 @@ func doSth() {
 
 	// r := db.FindAll(db.AMRawdata)
 	// util.PrintJson(r)
+	// db.L()
+
 	go logic.RunDaemonLoop()
 }
 

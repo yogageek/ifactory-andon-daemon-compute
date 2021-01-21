@@ -10,6 +10,7 @@ require (
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/mattn/go-isatty v0.0.12
 	github.com/sirupsen/logrus v1.7.0
+	github.com/thoas/go-funk v0.7.0
 	github.com/tidwall/gjson v1.6.5
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0

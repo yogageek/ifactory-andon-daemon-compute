@@ -3,6 +3,9 @@ package db
 import (
 	"iii/ifactory/compute/util"
 
+	// . "iii/ifactory/compute/util/cch/json"
+	"reflect"
+
 	"github.com/golang/glog"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -52,6 +55,61 @@ func FindAll(collection string, query interface{}, selector interface{}, result 
 		return err
 	}
 	return nil
+}
+
+func UpdateOne(collection string, selector interface{}, update interface{}) error {
+	c := MongoDB.UseC(collection)
+	updated := bson.M{
+		"$set": update,
+	}
+	err := c.Update(selector, updated)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Push(collection string, selector interface{}, update interface{}) error {
+	c := MongoDB.UseC(collection)
+	updated := bson.M{
+		"$push": update,
+	}
+	// util.PrintJson(selector)
+	// util.PrintJson(updated)
+	err := c.Update(selector, updated)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Pushs(collection string, selector interface{}, field string, update interface{}) error {
+	c := MongoDB.UseC(collection)
+
+	updated := bson.M{
+		"$push": bson.M{
+			field: bson.M{"$each": update},
+		},
+	}
+
+	err := c.Update(selector, updated)
+	if err != nil {
+		glog.Error(util.Cerr(err))
+		return err
+	}
+	return nil
+}
+
+func ToIfaces(iface interface{}) (ifaces []interface{}) {
+	switch reflect.TypeOf(iface).Kind() {
+	case reflect.Slice:
+		s := reflect.ValueOf(iface)
+		for i := 0; i < s.Len(); i++ {
+			// fmt.Println(s.Index(i))
+			ifaces = append(ifaces, s.Index(i).Interface())
+		}
+	}
+	return ifaces
 }
 
 func Insert(collection string, v interface{}) {

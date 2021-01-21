@@ -57,6 +57,13 @@ func FromJsonV(in string, v interface{}) error {
 	return nil
 }
 
+func FromJsonNoV(in string, v interface{}) error {
+	if err := json.Unmarshal([]byte(in), v); err != nil {
+		return err
+	}
+	return nil
+}
+
 /*
 等於省下了
 var v interface{}
