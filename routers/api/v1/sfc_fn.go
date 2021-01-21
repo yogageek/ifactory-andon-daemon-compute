@@ -10,14 +10,14 @@ import (
 func FindWorkOrders(workorderId string) (wos []model.WorkOrder, err error) {
 	if workorderId == "" {
 		err := db.FindAll(model.C.Workorder, nil, nil, &wos)
-		if err == nil {
+		if err != nil {
 			glog.Info(err)
 			return nil, err
 		}
 	} else {
 		query := model.WorkOrder{WorkOrderId: workorderId}
 		err := db.FindAll(model.C.Workorder, query, nil, &wos)
-		if err == nil {
+		if err != nil {
 			glog.Info(err)
 			return nil, err
 		}
