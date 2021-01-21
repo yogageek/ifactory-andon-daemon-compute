@@ -21,6 +21,37 @@ firstname := c.DefaultQuery("firstname", "None")
 lastname := c.Query("lastname")
 */
 
+//GET Stats-----------------------------------------------------------
+func GetStats(c *gin.Context) {
+	groupBy := c.Query("groupBy")
+
+	var sti []*model.StatsInfo
+	if groupBy == "station" {
+		agg := db.Agg{}
+		agg.GenUnwind("WorkOrderList")
+		agg.GenGroup(
+			"WorkOrderList",
+			[]string{"WorkOrderId", "StationName"},
+			[]string{"WorkOrderId", "StationName", "$Quantity"},
+			[]string{"CompletedQty", "NonGoodQty"},
+		)
+		// util.PrintJson(group)
+		err := agg.Aggre(model.C.Workorder, &sti)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
+		// tutorial
+		// var ms []*model.StatsInfo
+		// if err := bson.Unmarshal(bsonBytes, &ms); err != nil {
+		// 	panic(err)
+		// }
+		c.JSON(http.StatusOK, sti)
+	}
+	// util.PrintJson(r)
+}
+
 //可一起找出wo, wolist, product, station...
 func GetWorkOrders(c *gin.Context) {
 
@@ -45,7 +76,7 @@ func GetWorkOrders(c *gin.Context) {
 	}
 }
 
-func GetWorkOrdersByWorkOrderId(c *gin.Context) {
+func GetWorkOrder(c *gin.Context) {
 	workorderId := c.Param("workorderId") //取得URL中参数
 	wos, err := FindWorkOrders(workorderId)
 	if err != nil {
@@ -54,17 +85,7 @@ func GetWorkOrdersByWorkOrderId(c *gin.Context) {
 	c.JSON(http.StatusOK, wos)
 }
 
-//-------------------
-
-// func GetWorkOrderLists(c *gin.Context) {
-// 	var wols []model.WorkOrderList
-// 	err := db.FindAll(model.C.Workorder_list, nil, nil, &wols)
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, err)
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, wols)
-// }
+//POST-------------------
 
 //建立工單 done
 func PostWorkOrders(c *gin.Context) {
@@ -153,38 +174,7 @@ func PostWorkOrderLists(c *gin.Context) {
 	}
 }
 
-//-------Stats
-func GetStats(c *gin.Context) {
-	groupBy := c.Query("groupBy")
-
-	var sti []*model.StatsInfo
-	if groupBy == "station" {
-		agg := db.Agg{}
-		agg.GenUnwind("WorkOrderList")
-		agg.GenGroup(
-			"WorkOrderList",
-			[]string{"WorkOrderId", "StationName"},
-			[]string{"WorkOrderId", "StationName", "$Quantity"},
-			[]string{"CompletedQty", "NonGoodQty"},
-		)
-		// util.PrintJson(group)
-		err := agg.Aggre(model.C.Workorder, &sti)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, err)
-			return
-		}
-
-		// tutorial
-		// var ms []*model.StatsInfo
-		// if err := bson.Unmarshal(bsonBytes, &ms); err != nil {
-		// 	panic(err)
-		// }
-		c.JSON(http.StatusOK, sti)
-	}
-	// util.PrintJson(r)
-}
-
-//----------------------------------------
+//PUT-------------------
 
 //更新工單
 func PutWorkOrder(c *gin.Context) {

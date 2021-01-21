@@ -27,7 +27,7 @@ func InitRouter() *gin.Engine {
 		//get all workorders(include list)
 		apiv1.GET("/workorders", v1.GetWorkOrders)
 		//get one workorders(include list)
-		apiv1.GET("/workorders/:workorderId", v1.GetWorkOrdersByWorkOrderId)
+		apiv1.GET("/workorders/:workorderId", v1.GetWorkOrder)
 		//get all list of one workorders(上面那隻可以達到)
 		// apiv1.GET("/workorders/:workorderId/workorder_list")
 

@@ -2,6 +2,7 @@ package db
 
 import (
 	"iii/ifactory/compute/util"
+	"strings"
 
 	// . "iii/ifactory/compute/util/cch/json"
 	"reflect"
@@ -47,17 +48,22 @@ func (a *Agg) GenGroup(nestedObject string, groups, firsts, sums []string) inter
 	group["_id"] = grouped
 
 	for _, f := range firsts {
-		group[f] = bson.M{"$first": f}
+		if strings.Contains(f, "$") {
+			newf := strings.TrimLeft(f, "$")
+			group[newf] = bson.M{"$first": f}
+		} else {
+			group[f] = bson.M{"$first": nestedObject + f}
+		}
 	}
 
 	for _, s := range sums {
-		group[s] = bson.M{"$sum": s}
+		group[s] = bson.M{"$sum": nestedObject + s}
 	}
 
 	r := map[string]interface{}{
 		"$group": group,
 	}
-
+	util.PrintJson(r)
 	a.Group = r
 	return r
 }
