@@ -208,7 +208,7 @@ func (o AmLatest) DoSomething() {
 func trigger(i interface{}) ([]byte, error) {
 	var url string
 	if os.Getenv("DEBUG") == "true" {
-		url = "https://api-notification-ifactoryandondev-eks005.sa.wise-paas.com/andon/api/v1.0/notification"
+		url = "https://ifactory-api-notification-ifactoryandondev-eks005.sa.wise-paas.com"
 	} else {
 		url = "https://ifactory-api-notification-andon-eks005.sa.wise-paas.com/andon/api/v1.0/notification"
 	}

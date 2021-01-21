@@ -31,7 +31,7 @@ func InitRouter() *gin.Engine {
 		//get all list of one workorders
 		apiv1.GET("/workorders/:workorderId/workorder_list")
 
-		//add wo/list (如果有帶list則同時新增list)
+		//add wo (如果有帶list則同時新增list)
 		apiv1.POST("/workorders", v1.PostWorkOrders)
 		//add list (到指定wo底下)
 		apiv1.POST("/workorders/:workorderId/workorderLists", v1.PostWorkOrderLists)
