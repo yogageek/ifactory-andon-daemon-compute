@@ -46,7 +46,7 @@ func (c *StatsInfo) SetBSON(raw bson.Raw) error {
 	if bsonErr != nil {
 		return bsonErr
 	}
-	util.PrintJson(s)
+	// util.PrintJson(s)
 
 	s.RealCompletedRate = func() float64 {
 		if r := (s.CompletedQty / s.Quantity) * 100; !math.IsNaN(r) {
@@ -73,7 +73,7 @@ func (c *StatsInfo) SetBSON(raw bson.Raw) error {
 	c.Status = s.Status
 	c.RealCompletedRate = s.RealCompletedRate
 
-	util.PrintJson(c)
+	// util.PrintJson(c)
 
 	return nil
 }
