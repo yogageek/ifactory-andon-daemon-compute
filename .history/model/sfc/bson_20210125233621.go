@@ -62,7 +62,6 @@ type StatsInfo struct {
 	Quantity     float64 `json:"Quantity,omitempty" bson:"Quantity,omitempty"` //預計生產數量
 
 	RealCompletedRate float64 `json:"RealCompletedRate,omitempty" bson:"RealCompletedRate"`
-	EstiCompletedRate float64 `json:"EstiCompletedRate,omitempty" bson:"EstiCompletedRate"`
 
 	// future
 	// orders list count of the station
@@ -70,10 +69,25 @@ type StatsInfo struct {
 	Status float64 `json:"Status,omitempty" bson:"Status"`
 }
 
-func (s *StatsInfo) CalStats() {
+// SetBSON implements bson.Setter.
+func (c *StatsInfo) SetBSON(raw bson.Raw) error {
 
-	s.NonGoodQty = s.CompletedQty - s.NonGoodQty
+	// decoded := new(struct { })
+	type newStatsInfo StatsInfo
+	s := new(newStatsInfo)
 
+	bsonErr := raw.Unmarshal(s)
+	if bsonErr != nil {
+		return bsonErr
+	}
+	// util.PrintJson(s)
+
+	s.RealCompletedRate = func() float64 {
+		if r := (s.CompletedQty / s.Quantity) * 100; !math.IsNaN(r) {
+			return r
+		}
+		return 0
+	}()
 	s.Status = func() float64 {
 		switch {
 		case s.CompletedQty < s.Quantity:
@@ -84,61 +98,21 @@ func (s *StatsInfo) CalStats() {
 			return 0 //"等於標準"
 		}
 	}()
+	s.NonGoodQty = s.CompletedQty - s.NonGoodQty
 
-	s.RealCompletedRate = func() float64 {
-		if r := (s.CompletedQty / s.Quantity) * 100; !math.IsNaN(r) {
-			return r
-		}
-		return 0
-	}()
-	// s.EstiCompletedRate =
+	c.WorkOrderId = s.WorkOrderId
+	c.CompletedQty = s.CompletedQty
+	c.GoodQty = s.GoodQty
+	c.Quantity = s.Quantity
+	c.StationName = s.StationName
+	c.Status = s.Status
+	c.RealCompletedRate = s.RealCompletedRate
+	c.NonGoodQty = s.NonGoodQty
 
+	// util.PrintJson(c)
+
+	return nil
 }
-
-// // SetBSON implements bson.Setter.
-// func (c *StatsInfo) SetBSON(raw bson.Raw) error {
-
-// 	// decoded := new(struct { })
-// 	type newStatsInfo StatsInfo
-// 	s := new(newStatsInfo)
-
-// 	bsonErr := raw.Unmarshal(s)
-// 	if bsonErr != nil {
-// 		return bsonErr
-// 	}
-// 	// util.PrintJson(s)
-
-// 	s.RealCompletedRate = func() float64 {
-// 		if r := (s.CompletedQty / s.Quantity) * 100; !math.IsNaN(r) {
-// 			return r
-// 		}
-// 		return 0
-// 	}()
-// 	s.Status = func() float64 {
-// 		switch {
-// 		case s.CompletedQty < s.Quantity:
-// 			return -1 //"低於標準"
-// 		case s.CompletedQty > s.Quantity:
-// 			return 1 //"高於標準"
-// 		default:
-// 			return 0 //"等於標準"
-// 		}
-// 	}()
-// 	s.NonGoodQty = s.CompletedQty - s.NonGoodQty
-
-// 	c.WorkOrderId = s.WorkOrderId
-// 	c.CompletedQty = s.CompletedQty
-// 	c.GoodQty = s.GoodQty
-// 	c.Quantity = s.Quantity
-// 	c.StationName = s.StationName
-// 	c.Status = s.Status
-// 	c.RealCompletedRate = s.RealCompletedRate
-// 	c.NonGoodQty = s.NonGoodQty
-
-// 	// util.PrintJson(c)
-
-// 	return nil
-// }
 
 // 工單資訊
 type WorkOrderInfo struct {

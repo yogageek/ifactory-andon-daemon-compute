@@ -25,7 +25,7 @@ lastname := c.Query("lastname")
 func GetStats(c *gin.Context) {
 	groupBy := c.Query("groupBy")
 
-	var stsInfo []*model.StatsInfo
+	var sti []*model.StatsInfo
 	if groupBy == "station" {
 		agg := db.Agg{}
 		agg.GenUnwind("WorkOrderList")
@@ -36,23 +36,19 @@ func GetStats(c *gin.Context) {
 			[]string{"CompletedQty", "NonGoodQty"},
 		)
 		// util.PrintJson(group)
-		err := agg.Aggre(model.C.Workorder, &stsInfo)
+		err := agg.Aggre(model.C.Workorder, &sti)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, err)
 			return
 		}
-
-		//stats calculate logic
-		for _, s := range stsInfo {
-			s.CalStats()
-		}
+		//fulfill stats other cals
 
 		// tutorial
 		// var ms []*model.StatsInfo
 		// if err := bson.Unmarshal(bsonBytes, &ms); err != nil {
 		// 	panic(err)
 		// }
-		c.JSON(http.StatusOK, stsInfo)
+		c.JSON(http.StatusOK, sti)
 	}
 	// util.PrintJson(r)
 }

@@ -42,7 +42,7 @@ func GetStats(c *gin.Context) {
 			return
 		}
 
-		//stats calculate logic
+		//fulfill stats calculate logic
 		for _, s := range stsInfo {
 			s.CalStats()
 		}
