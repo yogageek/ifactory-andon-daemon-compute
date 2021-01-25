@@ -22,7 +22,16 @@ lastname := c.Query("lastname")
 */
 
 //GET Stats-----------------------------------------------------------
-func GetStats(c *gin.Context) {
+func GetCounts(c *gin.Context) {
+	var ci model.CountInfos
+
+	//get all workordersInfo----------------------------
+	wos, _ := FindWorkOrdersInfo()
+	ci.NewCountInfos(wos)
+	c.JSON(http.StatusOK, ci)
+}
+
+func GetTables(c *gin.Context) {
 	groupBy := c.Query("groupBy")
 
 	var stsInfo []*model.StatsInfo
@@ -52,6 +61,7 @@ func GetStats(c *gin.Context) {
 		// if err := bson.Unmarshal(bsonBytes, &ms); err != nil {
 		// 	panic(err)
 		// }
+
 		c.JSON(http.StatusOK, stsInfo)
 	}
 	// util.PrintJson(r)

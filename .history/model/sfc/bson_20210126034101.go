@@ -52,16 +52,68 @@ type JB struct {
 	WorkOrderList *WorkOrderList `json:"WorkOrderList,omitempty" bson:"WorkOrderList,omitempty"`
 }
 
+type CountInfos struct {
+	Station struct {
+		Count           float64
+		TypeCount       float64
+		EachTypeCount   map[string]float64
+		EachStatusCount map[string]float64
+	}
+	WorkOrder struct {
+		Count         float64
+		TypeCount     float64
+		EachTypeCount map[string]float64
+	}
+}
+
+func (s *CountInfos) NewCountInfos(wois []WorkOrderInfo) {
+	s.WorkOrder.EachTypeCount = map[string]float64{}
+	s.Station.EachTypeCount = map[string]float64{}
+
+	for _, woi := range wois {
+		s.WorkOrder.Count++
+		s.WorkOrder.EachTypeCount[fmt.Sprintf("%v", woi.Status)]++
+		s.WorkOrder.TypeCount = float64(len(s.WorkOrder.EachTypeCount))
+
+		for _, sta := range woi.Stations {
+			s.Station.Count++
+			s.Station.EachTypeCount[fmt.Sprintf("%v", sta.Name)]++
+			s.Station.TypeCount = float64(len(s.Station.EachTypeCount))
+
+			// s.Station.EachStatusCount
+		}
+
+	}
+
+	// check same in array
+	// for _, a := range s {
+	//     if a == e {
+	//         return true
+	//     }
+	// }
+	// return false
+
+	// check same in map
+	// stations := map[string]interface{}{}
+	// for _, o := range ss {
+	// 	if _, ok := stations[o.StationName]; !ok {
+	// 		s.StationCount++
+	// 	}
+	// }
+}
+
 type StatsInfo struct {
 	WorkOrderId string `json:"WorkOrderId,omitempty" bson:"WorkOrderId"`
 	StationName string `json:"StationName,omitempty" bson:"StationName"`
 
-	CompletedQty float64 `json:"CompletedQty,omitempty" bson:"CompletedQty"`
-	NonGoodQty   float64 `json:"NonGoodQty,omitempty" bson:"NonGoodQty"`
-	GoodQty      float64 `json:"GoodQty,omitempty" bson:"GoodQty"`
-	Quantity     float64 `json:"Quantity,omitempty" bson:"Quantity,omitempty"` //預計生產數量
+	GoodQty          float64 `json:"GoodQty,omitempty" bson:"GoodQty"`
+	NonGoodQty       float64 `json:"NonGoodQty,omitempty" bson:"NonGoodQty"`
+	CompletedQty     float64 `json:"CompletedQty,omitempty" bson:"CompletedQty"`
+	ToBeCompletedQty float64 `json:"ToBeCompletedQty,omitempty" bson:"ToBeCompletedQty"`
+	Quantity         float64 `json:"Quantity,omitempty" bson:"Quantity,omitempty"` //預計生產數量
 
 	RealCompletedRate float64 `json:"RealCompletedRate,omitempty" bson:"RealCompletedRate"`
+	EstiCompletedRate float64 `json:"EstiCompletedRate,omitempty" bson:"EstiCompletedRate"`
 
 	// future
 	// orders list count of the station
@@ -70,12 +122,10 @@ type StatsInfo struct {
 }
 
 func (s *StatsInfo) CalStats() {
-	s.RealCompletedRate = func() float64 {
-		if r := (s.CompletedQty / s.Quantity) * 100; !math.IsNaN(r) {
-			return r
-		}
-		return 0
-	}()
+
+	s.GoodQty = s.CompletedQty - s.NonGoodQty
+	s.ToBeCompletedQty = s.CompletedQty - s.GoodQty
+
 	s.Status = func() float64 {
 		switch {
 		case s.CompletedQty < s.Quantity:
@@ -86,21 +136,6 @@ func (s *StatsInfo) CalStats() {
 			return 0 //"等於標準"
 		}
 	}()
-	s.NonGoodQty = s.CompletedQty - s.NonGoodQty
-}
-
-// SetBSON implements bson.Setter.
-func (c *StatsInfo) SetBSON(raw bson.Raw) error {
-
-	// decoded := new(struct { })
-	type newStatsInfo StatsInfo
-	s := new(newStatsInfo)
-
-	bsonErr := raw.Unmarshal(s)
-	if bsonErr != nil {
-		return bsonErr
-	}
-	// util.PrintJson(s)
 
 	s.RealCompletedRate = func() float64 {
 		if r := (s.CompletedQty / s.Quantity) * 100; !math.IsNaN(r) {
@@ -108,31 +143,54 @@ func (c *StatsInfo) SetBSON(raw bson.Raw) error {
 		}
 		return 0
 	}()
-	s.Status = func() float64 {
-		switch {
-		case s.CompletedQty < s.Quantity:
-			return -1 //"低於標準"
-		case s.CompletedQty > s.Quantity:
-			return 1 //"高於標準"
-		default:
-			return 0 //"等於標準"
-		}
-	}()
-	s.NonGoodQty = s.CompletedQty - s.NonGoodQty
+	// s.EstiCompletedRate =
 
-	c.WorkOrderId = s.WorkOrderId
-	c.CompletedQty = s.CompletedQty
-	c.GoodQty = s.GoodQty
-	c.Quantity = s.Quantity
-	c.StationName = s.StationName
-	c.Status = s.Status
-	c.RealCompletedRate = s.RealCompletedRate
-	c.NonGoodQty = s.NonGoodQty
-
-	// util.PrintJson(c)
-
-	return nil
 }
+
+// // SetBSON implements bson.Setter.
+// func (c *StatsInfo) SetBSON(raw bson.Raw) error {
+
+// 	// decoded := new(struct { })
+// 	type newStatsInfo StatsInfo
+// 	s := new(newStatsInfo)
+
+// 	bsonErr := raw.Unmarshal(s)
+// 	if bsonErr != nil {
+// 		return bsonErr
+// 	}
+// 	// util.PrintJson(s)
+
+// 	s.RealCompletedRate = func() float64 {
+// 		if r := (s.CompletedQty / s.Quantity) * 100; !math.IsNaN(r) {
+// 			return r
+// 		}
+// 		return 0
+// 	}()
+// 	s.Status = func() float64 {
+// 		switch {
+// 		case s.CompletedQty < s.Quantity:
+// 			return -1 //"低於標準"
+// 		case s.CompletedQty > s.Quantity:
+// 			return 1 //"高於標準"
+// 		default:
+// 			return 0 //"等於標準"
+// 		}
+// 	}()
+// 	s.NonGoodQty = s.CompletedQty - s.NonGoodQty
+
+// 	c.WorkOrderId = s.WorkOrderId
+// 	c.CompletedQty = s.CompletedQty
+// 	c.GoodQty = s.GoodQty
+// 	c.Quantity = s.Quantity
+// 	c.StationName = s.StationName
+// 	c.Status = s.Status
+// 	c.RealCompletedRate = s.RealCompletedRate
+// 	c.NonGoodQty = s.NonGoodQty
+
+// 	// util.PrintJson(c)
+
+// 	return nil
+// }
 
 // 工單資訊
 type WorkOrderInfo struct {
@@ -198,6 +256,14 @@ type Station struct {
 	GoodQty      float64
 	NonGoodQty   float64
 	CompletedQty float64
+	CalInfo
+}
+
+type CalInfo struct {
+	ToBeCompletedQty  float64
+	RealCompletedRate float64
+	EstiCompletedRate float64
+	Status            float64
 }
 
 func (o *WorkOrder) CreateWithDefault() {
@@ -282,6 +348,9 @@ func (o *WorkOrder) calStationInfo() (stations []Station) {
 		mStation[s].CompletedQty = mStation[s].CompletedQty + wol.CompletedQty
 		mStation[s].NonGoodQty = mStation[s].NonGoodQty + wol.NonGoodQty
 		mStation[s].GoodQty = mStation[s].CompletedQty - mStation[s].NonGoodQty
+
+		mStation[s].CalInfo.ToBeCompletedQty = mStation[s].CompletedQty - mStation[s].GoodQty
+		// mStation[s].CalInfo.Status=
 	}
 
 	for _, v := range mStation {

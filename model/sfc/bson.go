@@ -52,14 +52,65 @@ type JB struct {
 	WorkOrderList *WorkOrderList `json:"WorkOrderList,omitempty" bson:"WorkOrderList,omitempty"`
 }
 
+type CountInfos struct {
+	Station struct {
+		Count           float64
+		TypeCount       float64
+		EachTypeCount   map[string]float64
+		EachStatusCount map[string]float64
+	}
+	WorkOrder struct {
+		Count         float64
+		TypeCount     float64
+		EachTypeCount map[string]float64
+	}
+}
+
+func (s *CountInfos) NewCountInfos(wois []WorkOrderInfo) {
+	s.WorkOrder.EachTypeCount = map[string]float64{}
+	s.Station.EachTypeCount = map[string]float64{}
+	s.Station.EachStatusCount = map[string]float64{}
+
+	for _, woi := range wois {
+		s.WorkOrder.Count++
+		s.WorkOrder.EachTypeCount[fmt.Sprintf("%v", woi.Status)]++
+		s.WorkOrder.TypeCount = float64(len(s.WorkOrder.EachTypeCount))
+
+		for _, sta := range woi.Stations {
+			s.Station.Count++
+			s.Station.EachTypeCount[fmt.Sprintf("%v", sta.Name)]++
+			s.Station.TypeCount = float64(len(s.Station.EachTypeCount))
+			s.Station.EachStatusCount[fmt.Sprintf("%v", sta.CalInfo.Status)]++
+		}
+
+	}
+
+	// check same in array
+	// for _, a := range s {
+	//     if a == e {
+	//         return true
+	//     }
+	// }
+	// return false
+
+	// check same in map
+	// stations := map[string]interface{}{}
+	// for _, o := range ss {
+	// 	if _, ok := stations[o.StationName]; !ok {
+	// 		s.StationCount++
+	// 	}
+	// }
+}
+
 type StatsInfo struct {
 	WorkOrderId string `json:"WorkOrderId,omitempty" bson:"WorkOrderId"`
 	StationName string `json:"StationName,omitempty" bson:"StationName"`
 
-	CompletedQty float64 `json:"CompletedQty,omitempty" bson:"CompletedQty"`
-	NonGoodQty   float64 `json:"NonGoodQty,omitempty" bson:"NonGoodQty"`
-	GoodQty      float64 `json:"GoodQty,omitempty" bson:"GoodQty"`
-	Quantity     float64 `json:"Quantity,omitempty" bson:"Quantity,omitempty"` //預計生產數量
+	GoodQty          float64 `json:"GoodQty,omitempty" bson:"GoodQty"`
+	NonGoodQty       float64 `json:"NonGoodQty,omitempty" bson:"NonGoodQty"`
+	CompletedQty     float64 `json:"CompletedQty,omitempty" bson:"CompletedQty"`
+	ToBeCompletedQty float64 `json:"ToBeCompletedQty,omitempty" bson:"ToBeCompletedQty"`
+	Quantity         float64 `json:"Quantity,omitempty" bson:"Quantity,omitempty"` //預計生產數量
 
 	RealCompletedRate float64 `json:"RealCompletedRate,omitempty" bson:"RealCompletedRate"`
 	EstiCompletedRate float64 `json:"EstiCompletedRate,omitempty" bson:"EstiCompletedRate"`
@@ -72,27 +123,30 @@ type StatsInfo struct {
 
 func (s *StatsInfo) CalStats() {
 
-	s.NonGoodQty = s.CompletedQty - s.NonGoodQty
-
-	s.Status = func() float64 {
-		switch {
-		case s.CompletedQty < s.Quantity:
-			return -1 //"低於標準"
-		case s.CompletedQty > s.Quantity:
-			return 1 //"高於標準"
-		default:
-			return 0 //"等於標準"
-		}
-	}()
-
-	s.RealCompletedRate = func() float64 {
-		if r := (s.CompletedQty / s.Quantity) * 100; !math.IsNaN(r) {
-			return r
-		}
-		return 0
-	}()
+	s.GoodQty = s.CompletedQty - s.NonGoodQty
+	s.ToBeCompletedQty = s.CompletedQty - s.GoodQty
+	s.Status = calStatus(s.CompletedQty, s.Quantity)
+	s.RealCompletedRate = calRealCompletedRate(s.CompletedQty, s.Quantity)
 	// s.EstiCompletedRate =
 
+}
+
+func calRealCompletedRate(completedQty, quantity float64) float64 {
+	if r := (completedQty / quantity) * 100; !math.IsNaN(r) {
+		return r
+	}
+	return 0
+}
+
+func calStatus(completedQty, quantity float64) float64 {
+	switch {
+	case completedQty < quantity:
+		return -1 //"低於標準"
+	case completedQty > quantity:
+		return 1 //"高於標準"
+	default:
+		return 0 //"等於標準"
+	}
 }
 
 // // SetBSON implements bson.Setter.
@@ -204,6 +258,14 @@ type Station struct {
 	GoodQty      float64
 	NonGoodQty   float64
 	CompletedQty float64
+	CalInfo
+}
+
+type CalInfo struct {
+	ToBeCompletedQty  float64 `json:"-"`
+	RealCompletedRate float64 `json:"-"`
+	EstiCompletedRate float64 `json:"-"`
+	Status            float64 `json:"-"`
 }
 
 func (o *WorkOrder) CreateWithDefault() {
@@ -288,6 +350,9 @@ func (o *WorkOrder) calStationInfo() (stations []Station) {
 		mStation[s].CompletedQty = mStation[s].CompletedQty + wol.CompletedQty
 		mStation[s].NonGoodQty = mStation[s].NonGoodQty + wol.NonGoodQty
 		mStation[s].GoodQty = mStation[s].CompletedQty - mStation[s].NonGoodQty
+
+		mStation[s].CalInfo.ToBeCompletedQty = mStation[s].CompletedQty - mStation[s].GoodQty
+		mStation[s].CalInfo.Status = calStatus(mStation[s].CompletedQty, o.Quantity)
 	}
 
 	for _, v := range mStation {

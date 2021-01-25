@@ -38,7 +38,8 @@ func InitRouter() *gin.Engine {
 
 		// apiv1.PUT("/workorders/:workorderId", v1.PutWorkOrder)
 
-		apiv1.GET("/stats", v1.GetStats) //列出all wo(包含底下list,product等資訊)
+		apiv1.GET("/grafana/tables", v1.GetTables) //列出all wo(包含底下list,product等資訊)
+		apiv1.GET("/grafana/counts", v1.GetCounts) //列出all wo(包含底下list,product等資訊)
 	}
 
 	return r
