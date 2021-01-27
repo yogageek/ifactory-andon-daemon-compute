@@ -115,8 +115,7 @@ type StatsInfo struct {
 	RealCompletedRate float64 `json:"RealCompletedRate,omitempty" bson:"RealCompletedRate"`
 	EstiCompletedRate float64 `json:"EstiCompletedRate,omitempty" bson:"EstiCompletedRate"`
 
-	// future
-	// orders list count of the station
+	// orders list count of the station (moved to counts)
 
 	Status float64 `json:"Status,omitempty" bson:"Status"`
 }
@@ -213,8 +212,8 @@ type WorkOrderInfo struct {
 
 //工單
 type WorkOrder struct {
-	Id          bson.ObjectId `json:"id,omitempty" bson:"_id,omitempty"`
-	WorkOrderId string        `json:"WorkOrderId,omitempty" bson:"WorkOrderId"`
+	Id          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	WorkOrderId string        `json:"WorkOrderId,omitempty" bson:"WorkOrderId,omitempty"`
 
 	Quantity      float64    `json:"Quantity,omitempty" bson:"Quantity,omitempty" validate:"required"` //預計生產數量
 	PlanStartDate *time.Time `json:"PlanStartDate,omitempty" bson:"PlanStartDate,omitempty"`

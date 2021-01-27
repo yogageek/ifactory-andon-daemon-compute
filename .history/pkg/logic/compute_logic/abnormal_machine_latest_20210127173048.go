@@ -183,8 +183,8 @@ func (o AmLatest) DoSomething() {
 
 		if data.Type == "Auto" && *data.ProcessingStatusCode == 0 {
 			trigger(data)
-		} else if data.Type == "Manual" && *data.ProcessingStatusCode == 0 {
-			fmt.Println("Manual...")
+		} else if data.Type == "Auto" && *data.ProcessingStatusCode == 0 {
+
 		}
 
 		if util.GetNow().After(data.ShouldRepairTime) && *data.ProcessingStatusCode < 4 {

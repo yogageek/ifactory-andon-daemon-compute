@@ -183,8 +183,6 @@ func (o AmLatest) DoSomething() {
 
 		if data.Type == "Auto" && *data.ProcessingStatusCode == 0 {
 			trigger(data)
-		} else if data.Type == "Manual" && *data.ProcessingStatusCode == 0 {
-			fmt.Println("Manual...")
 		}
 
 		if util.GetNow().After(data.ShouldRepairTime) && *data.ProcessingStatusCode < 4 {
@@ -198,6 +196,7 @@ func (o AmLatest) DoSomething() {
 				},
 			}
 			db.Update(o.targetCollection, option, value)
+
 			trigger(data)
 		}
 

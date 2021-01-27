@@ -207,6 +207,7 @@ func Update(collection string, option interface{}, setvalue bson.M) {
 
 func Remove(collection string, selector interface{}) {
 	c := MongoDB.UseC(collection)
+	// fmt.Printf("%+v", selector)
 	err := c.Remove(selector)
 	if err != nil {
 		glog.Error(util.Cerr(err))

@@ -11,7 +11,9 @@ import (
 	"io/ioutil"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang/glog"
 	. "github.com/logrusorgru/aurora"
+	"gopkg.in/mgo.v2/bson"
 )
 
 /*
@@ -20,6 +22,28 @@ DefaultQuery 的話如果沒有 firstname 這參數，就會給預設值第二�
 firstname := c.DefaultQuery("firstname", "None")
 lastname := c.Query("lastname")
 */
+
+//DELETE
+func DeleteWorkOrders(c *gin.Context) {
+	id := c.Param("id")
+
+	//use Remove
+	// selector := model.WorkOrder{Id: bson.ObjectIdHex(id)} //ok
+	// selector := bson.M{"WorkOrderId": "20210126-60102a40959582230048b355"} //ok
+	// selector := bson.M{"_id": bson.ObjectIdHex(id)} //ok
+
+	//use RemoveId
+	selector := bson.ObjectIdHex(id) //ok
+
+	err := db.MongoDB.UseC(model.C.Workorder).RemoveId(selector)
+	if err != nil {
+		glog.Error(err)
+	}
+}
+
+func DeleteWorkOrderLists(c *gin.Context) {
+	// db.person.update({"name":"zhang"},{$unset:{"age":1}})
+}
 
 //GET Stats-----------------------------------------------------------
 func GetCounts(c *gin.Context) {
