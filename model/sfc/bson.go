@@ -71,6 +71,11 @@ func (s *CountInfos) NewCountInfos(wois []WorkOrderInfo) {
 	s.Station.EachTypeCount = map[string]float64{}
 	s.Station.EachStatusCount = map[string]float64{}
 
+	//為了解決沒有值 json就出不來的情況
+	s.Station.EachStatusCount["1"] = 0
+	s.Station.EachStatusCount["2"] = 0
+	s.Station.EachStatusCount["3"] = 0
+
 	for _, woi := range wois {
 		s.WorkOrder.Count++
 		s.WorkOrder.EachTypeCount[fmt.Sprintf("%v", woi.Status)]++
@@ -115,18 +120,25 @@ type StatsInfo struct {
 	RealCompletedRate float64 `json:"RealCompletedRate,omitempty" bson:"RealCompletedRate"`
 	EstiCompletedRate float64 `json:"EstiCompletedRate,omitempty" bson:"EstiCompletedRate"`
 
+	//1/28 add
+	GoodQtyRate float64 `json:"GoodQtyRate,omitempty" bson:"GoodQtyRate"`
+
 	// orders list count of the station (moved to counts)
 
 	Status float64 `json:"Status,omitempty" bson:"Status"`
 }
 
 func (s *StatsInfo) CalStats() {
-
 	s.GoodQty = s.CompletedQty - s.NonGoodQty
-	s.ToBeCompletedQty = s.CompletedQty - s.GoodQty
+	s.ToBeCompletedQty = s.Quantity - s.GoodQty
 	s.Status = calStatus(s.CompletedQty, s.Quantity)
 	s.RealCompletedRate = calRealCompletedRate(s.CompletedQty, s.Quantity)
-	// s.EstiCompletedRate =
+	s.GoodQtyRate = func() float64 {
+		if r := s.GoodQty / s.Quantity; !math.IsNaN(r) {
+			return r
+		}
+		return 0
+	}()
 
 }
 
@@ -140,11 +152,11 @@ func calRealCompletedRate(completedQty, quantity float64) float64 {
 func calStatus(completedQty, quantity float64) float64 {
 	switch {
 	case completedQty < quantity:
-		return -1 //"低於標準"
+		return 1 //"低於標準"
 	case completedQty > quantity:
-		return 1 //"高於標準"
+		return 3 //"高於標準"
 	default:
-		return 0 //"等於標準"
+		return 2 //"等於標準"
 	}
 }
 
@@ -264,7 +276,7 @@ type CalInfo struct {
 	ToBeCompletedQty  float64 `json:"-"`
 	RealCompletedRate float64 `json:"-"`
 	EstiCompletedRate float64 `json:"-"`
-	Status            float64 `json:"-"`
+	Status            float64 `json:"Status"`
 }
 
 func (o *WorkOrder) CreateWithDefault() {
@@ -322,10 +334,10 @@ func (woi *WorkOrderInfo) CreateWorkOrderInfo(wo WorkOrder) {
 	}()
 
 	woi.Status = func() string {
-		if wo.Quantity <= woi.GoodProductQty {
-			return "done"
+		if wo.Quantity < woi.GoodProductQty {
+			return "1"
 		}
-		return "available"
+		return "2"
 	}()
 
 	woi.WorkOrder = wo
@@ -350,7 +362,7 @@ func (o *WorkOrder) calStationInfo() (stations []Station) {
 		mStation[s].NonGoodQty = mStation[s].NonGoodQty + wol.NonGoodQty
 		mStation[s].GoodQty = mStation[s].CompletedQty - mStation[s].NonGoodQty
 
-		mStation[s].CalInfo.ToBeCompletedQty = mStation[s].CompletedQty - mStation[s].GoodQty
+		mStation[s].CalInfo.ToBeCompletedQty = o.Quantity - mStation[s].GoodQty
 		mStation[s].CalInfo.Status = calStatus(mStation[s].CompletedQty, o.Quantity)
 	}
 

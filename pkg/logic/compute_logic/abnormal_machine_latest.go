@@ -198,12 +198,13 @@ func (o AmLatest) DoSomething() {
 				},
 			}
 			db.Update(o.targetCollection, option, value)
-			trigger(data)
+
+			// trigger(data)
 		}
 
-		// if *data.ProcessingStatusCode == 4 {
-		// 	trigger(data)
-		// }
+		if *data.ProcessingStatusCode == 4 {
+			trigger(data)
+		}
 	}
 }
 
