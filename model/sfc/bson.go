@@ -324,20 +324,30 @@ func (woi *WorkOrderInfo) CreateWorkOrderInfo(wo WorkOrder) {
 	}()
 
 	woi.GoodProductQty = func() (minGood float64) {
-		minGood = woi.Stations[0].GoodQty
-		for _, s := range woi.Stations {
-			if minGood > s.GoodQty {
-				minGood = s.GoodQty
+		//當有工單沒報工會error
+		// minGood = woi.Stations[0].GoodQty
+		// for _, s := range woi.Stations {
+		// 	if minGood > s.GoodQty {
+		// 		minGood = s.GoodQty
+		// 	}
+		// }
+
+		//1/29 fix
+		for i := 0; i < len(woi.Stations); i++ {
+			minGood = woi.Stations[0].GoodQty
+			if minGood > woi.Stations[i].GoodQty {
+				minGood = woi.Stations[i].GoodQty
 			}
 		}
+
 		return
 	}()
 
 	woi.Status = func() string {
-		if wo.Quantity < woi.GoodProductQty {
-			return "1"
+		if wo.Quantity <= woi.GoodProductQty {
+			return "2"
 		}
-		return "2"
+		return "1"
 	}()
 
 	woi.WorkOrder = wo
