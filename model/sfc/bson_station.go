@@ -49,11 +49,6 @@ func (s *StationInfo) NewStationInfo(name string, stations []Station, quantity f
 	}
 
 	var c Calculator
-	// old style
-	// s.ToBeCompletedQty = c.calToBeCompletedQty(quantity, s.GoodQty)
-	// s.RealCompletedRate = c.calRealCompletedRate(s.CompletedQty, quantity)
-	// s.GoodQtyRate = c.calGoodQtyRate(s.GoodQty, s.CompletedQty)
-	// s.Status = s.calStatus(s.CompletedQty, quantity)
 	c.NewCalculator(s.GoodQty, s.CompletedQty, quantity)
 	s.Calculator = c
 
@@ -99,4 +94,11 @@ func (c Calculator) calStatus(completedQty, quantity float64) float64 {
 // 		m[s.Name] = append(m[s.Name], s.Station)
 // 	}
 // 	return
+// }
+
+// try
+// var Stations Stations
+// try
+// for _, v := range Stations {
+// 	v.Station = wolist.GenStation()
 // }

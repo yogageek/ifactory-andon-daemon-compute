@@ -113,24 +113,12 @@ func (o *WorkOrderList) GenStation() (s Station) {
 
 func (woInfo *WorkOrderInfo) NewWorkOrderInfo(wo WorkOrder) {
 
-	// try
-	// var Stations Stations
 	var stations []Station
 
 	for _, wolist := range wo.WorkOrderList {
-		// old style
-		// w.MixedCompletedQty = w.MixedCompletedQty + l.CompletedQty
-		// w.MixedNonGoodQty = w.MixedNonGoodQty + l.NonGoodQty
-		// w.MixedGoodQty = w.MixedCompletedQty - w.MixedNonGoodQty
-		// new style
 		woInfo.MixedCompletedQty += wolist.CompletedQty
 		woInfo.MixedNonGoodQty += wolist.NonGoodQty
 		woInfo.MixedGoodQty += wolist.GoodQty
-
-		// try
-		// for _, v := range Stations {
-		// 	v.Station = wolist.GenStation()
-		// }
 
 		//gen stations by wolists
 		stations = append(stations, wolist.GenStation())

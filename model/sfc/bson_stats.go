@@ -10,14 +10,8 @@ type StatsInfo struct {
 	Quantity     float64 `json:"Quantity" bson:"Quantity,omitempty"` //預計生產數量
 
 	Calculator
-	// ToBeCompletedQty  float64 `json:"ToBeCompletedQty" bson:"ToBeCompletedQty"`
-	// RealCompletedRate float64 `json:"RealCompletedRate,omitempty" bson:"RealCompletedRate"`
-	// EstiCompletedRate float64 `json:"EstiCompletedRate,omitempty" bson:"EstiCompletedRate"`
-	// GoodQtyRate       float64 `json:"GoodQtyRate,omitempty" bson:"GoodQtyRate"`
-	// Status            float64 `json:"Status,omitempty" bson:"Status"`
 
 	// orders list count of the station (moved to counts)
-
 }
 
 func (s *StatsInfo) CalStats() {
@@ -27,10 +21,4 @@ func (s *StatsInfo) CalStats() {
 	var c Calculator
 	c.NewCalculator(s.GoodQty, s.CompletedQty, s.Quantity)
 	s.Calculator = c
-
-	// old style
-	// s.ToBeCompletedQty = c.calToBeCompletedQty(s.Quantity, s.GoodQty)
-	// s.RealCompletedRate = c.calRealCompletedRate(s.CompletedQty, s.Quantity)
-	// s.GoodQtyRate = c.calGoodQtyRate(s.GoodQty, s.CompletedQty)
-	// s.Status = c.calStatus(s.CompletedQty, s.Quantity)
 }
