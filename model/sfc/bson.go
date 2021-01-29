@@ -120,13 +120,13 @@ type WorkOrderInfo struct {
 	WorkOrder
 	Stations []Station `json:"Stations,omitempty" bson:"Stations"`
 
-	CompletedQty float64 `json:"CompletedQty,omitempty" bson:"CompletedQty"`
-	GoodQty      float64 `json:"GoodQty,omitempty" bson:"GoodQty"`
-	NonGoodQty   float64 `json:"NonGoodQty,omitempty" bson:"NonGoodQty"`
+	MixedCompletedQty float64 `json:"MixedCompletedQty,omitempty" bson:"MixedCompletedQty"`
+	MixedGoodQty      float64 `json:"MixedGoodQty,omitempty" bson:"MixedGoodQty"`
+	MixedNonGoodQty   float64 `json:"MixedNonGoodQty,omitempty" bson:"MixedNonGoodQty"`
 
 	GoodProductQty float64 `json:"GoodProductQty" bson:"GoodProductQty"`
 
-	GoodQtyRate        float64 `json:"GoodQtyRate,omitempty" bson:"GoodQtyRate"`
+	MixedGoodQtyRate   float64 `json:"MixedGoodQtyRate,omitempty" bson:"MixedGoodQtyRate"`
 	GoodProductQtyRate float64 `json:"GoodProductQtyRate,omitempty" bson:"GoodProductQtyRate"`
 
 	Status string `json:"Status,omitempty" bson:"Status"`
@@ -152,12 +152,13 @@ type WorkOrderList struct {
 	Id          bson.ObjectId `json:"id,omitempty" bson:"_id,omitempty"`
 	WorkOrderId string        `json:"WorkOrderId,omitempty" bson:"WorkOrderId"`
 
-	//是否把station模組放到這取代以下三欄?
-	CompletedQty float64 `json:"CompletedQty,omitempty" bson:"CompletedQty,omitempty"` //注意!!!不加empty會嚴重影響到push功能而且查不出來!因為c.Update(selector, updated) 系統會自動把selector=interface{}轉成bson,沒帶omitempty會parse成"""
-	NonGoodQty   float64 `json:"NonGoodQty,omitempty" bson:"NonGoodQty,omitempty"`
+	//#是否把station模組放到這取代以下四欄?(但是會動到很多地方)
 	StationName  string  `json:"StationName,omitempty" bson:"StationName,omitempty" validate:"required"` //注意!!!不加empty會嚴重影響到push功能而且查不出來!
-	Reporter     string  `json:"Reporter,omitempty" bson:"Reporter,omitempty" validate:"required"`
+	CompletedQty float64 `json:"CompletedQty,omitempty" bson:"CompletedQty,omitempty"`                   //注意!!!不加empty會嚴重影響到push功能而且查不出來!因為c.Update(selector, updated) 系統會自動把selector=interface{}轉成bson,沒帶omitempty會parse成"""
+	GoodQty      float64 `json:"GoodQty,omitempty" bson:"GoodQty,omitempty"`
+	NonGoodQty   float64 `json:"NonGoodQty,omitempty" bson:"NonGoodQty,omitempty"`
 
+	Reporter string     `json:"Reporter,omitempty" bson:"Reporter,omitempty" validate:"required"`
 	CreateAt *time.Time `json:"CreateAt,omitempty" bson:"CreateAt,omitempty"`
 }
 
@@ -175,11 +176,18 @@ type Product struct {
 type MyStations []struct {
 	Station
 }
+
+// // 改成
+// type StationDetail struct {
+// 	Station
+// 	CalInfo
+// }
 type Station struct {
 	Name         string
+	CompletedQty float64
 	GoodQty      float64
 	NonGoodQty   float64
-	CompletedQty float64
+
 	CalInfo
 }
 
@@ -212,6 +220,8 @@ func (o *WorkOrder) NewWorkOrder() {
 func (o *WorkOrderList) NewWorkOrderList(workorderId string) {
 	o.Id = bson.NewObjectId()
 	o.WorkOrderId = workorderId
+	//1/29 add
+	o.GoodQty = o.CompletedQty - o.NonGoodQty
 	o.CreateAt = func() *time.Time {
 		now := util.GetNow()
 		return &now
@@ -221,14 +231,14 @@ func (o *WorkOrderList) NewWorkOrderList(workorderId string) {
 func (woi *WorkOrderInfo) NewWorkOrderInfo(wo WorkOrder) {
 
 	for _, wol := range wo.WorkOrderList {
-		woi.CompletedQty = woi.CompletedQty + wol.CompletedQty
-		woi.NonGoodQty = woi.NonGoodQty + wol.NonGoodQty
-		woi.GoodQty = woi.CompletedQty - woi.NonGoodQty
+		woi.MixedCompletedQty = woi.MixedCompletedQty + wol.CompletedQty
+		woi.MixedNonGoodQty = woi.MixedNonGoodQty + wol.NonGoodQty
+		woi.MixedGoodQty = woi.MixedCompletedQty - woi.MixedNonGoodQty
 	}
 	woi.Stations = wo.calStationInfo()
 
-	woi.GoodQtyRate = func() float64 {
-		if r := woi.GoodQty / woi.CompletedQty; !math.IsNaN(r) {
+	woi.MixedGoodQtyRate = func() float64 {
+		if r := woi.MixedGoodQty / woi.MixedCompletedQty; !math.IsNaN(r) {
 			return r
 		}
 		return 0

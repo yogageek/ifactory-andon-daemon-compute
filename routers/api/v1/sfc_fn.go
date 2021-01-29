@@ -8,13 +8,16 @@ import (
 )
 
 func FindWorkOrders(workorderId string) (wos []model.WorkOrder, err error) {
+	//find all
 	if workorderId == "" {
 		err := db.FindAll(model.C.Workorder, nil, nil, &wos)
 		if err != nil {
 			glog.Info(err)
 			return nil, err
 		}
+
 	} else {
+		//find one
 		query := model.WorkOrder{WorkOrderId: workorderId}
 		err := db.FindAll(model.C.Workorder, query, nil, &wos)
 		if err != nil {
