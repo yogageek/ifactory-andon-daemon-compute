@@ -1,36 +1,39 @@
 package model
 
-import "math"
+import (
+	"iii/ifactory/compute/util"
+	"math"
+)
 
-type StationDetail struct {
+type StationInfo struct {
 	// stations []Station
 	Station
 	Calculator
 }
-
 type Station struct {
 	Name         string
 	CompletedQty float64
 	GoodQty      float64
 	NonGoodQty   float64
 }
-
 type Calculator struct {
-	ToBeCompletedQty  float64 `json:"-"`
-	GoodQtyRate       float64 `json:"-"`
-	RealCompletedRate float64 `json:"-"`
-	EstiCompletedRate float64 `json:"-"`
+	ToBeCompletedQty  float64 `json:"ToBeCompletedQty"`
+	GoodQtyRate       float64 `json:"GoodQtyRate"`
+	RealCompletedRate float64 `json:"RealCompletedRate"`
+	EstiCompletedRate float64 `json:"EstiCompletedRate"`
 	Status            float64 `json:"Status"`
 }
 
 func groupStationsByName(stations []Station) (m map[string][]Station) {
+	m = make(map[string][]Station)
 	for _, s := range stations {
 		m[s.Name] = append(m[s.Name], s)
 	}
+	util.PrintJson(m)
 	return
 }
 
-func (s *StationDetail) NewStationDetail(name string, stations []Station, quantity float64) {
+func (s *StationInfo) NewStationInfo(name string, stations []Station, quantity float64) {
 	s.Station.Name = name
 
 	for _, station := range stations {

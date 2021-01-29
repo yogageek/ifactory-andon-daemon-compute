@@ -1,7 +1,5 @@
 package model
 
-import "math"
-
 type StatsInfo struct {
 	WorkOrderId string `json:"WorkOrderId,omitempty" bson:"WorkOrderId"`
 	StationName string `json:"StationName,omitempty" bson:"StationName"`
@@ -24,17 +22,10 @@ type StatsInfo struct {
 }
 
 func (s *StatsInfo) CalStats() {
-	var c Cal
-
+	var c Calculator
 	s.GoodQty = s.CompletedQty - s.NonGoodQty
 	s.ToBeCompletedQty = c.calToBeCompletedQty(s.Quantity, s.GoodQty)
 	s.Status = c.calStatus(s.CompletedQty, s.Quantity)
 	s.RealCompletedRate = c.calRealCompletedRate(s.CompletedQty, s.Quantity)
-	s.GoodQtyRate = func() float64 {
-		if r := s.GoodQty / s.Quantity; !math.IsNaN(r) {
-			return r
-		}
-		return 0
-	}()
-
+	s.GoodQtyRate = c.calGoodQtyRate(s.GoodQty, s.CompletedQty)
 }

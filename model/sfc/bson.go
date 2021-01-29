@@ -99,7 +99,7 @@ type JB struct {
 // 工單資訊
 type WorkOrderInfo struct {
 	WorkOrder
-	StationDetails []StationDetail `json:"Stations,omitempty" bson:"Stations"`
+	StationInfos []StationInfo `json:"StationInfos,omitempty" bson:"StationInfos"`
 
 	MixedCompletedQty float64 `json:"MixedCompletedQty,omitempty" bson:"MixedCompletedQty"`
 	MixedGoodQty      float64 `json:"MixedGoodQty,omitempty" bson:"MixedGoodQty"`
@@ -185,10 +185,10 @@ func (o *WorkOrderList) NewWorkOrderList(workorderId string) {
 }
 
 func (o *WorkOrderList) GenStation() (s Station) {
-	o.CompletedQty = s.CompletedQty
-	o.GoodQty = s.GoodQty
-	o.NonGoodQty = s.NonGoodQty
-	o.StationName = s.Name
+	s.CompletedQty = o.CompletedQty
+	s.GoodQty = o.GoodQty
+	s.NonGoodQty = o.NonGoodQty
+	s.Name = o.StationName
 	return
 }
 
@@ -220,9 +220,9 @@ func (woInfo *WorkOrderInfo) NewWorkOrderInfo(wo WorkOrder) {
 	//stations logic
 	mStations := groupStationsByName(stations)
 	for name, stations := range mStations {
-		var stationDetail StationDetail
-		stationDetail.NewStationDetail(name, stations, wo.Quantity)
-		woInfo.StationDetails = append(woInfo.StationDetails, stationDetail)
+		var si StationInfo
+		si.NewStationDetail(name, stations, wo.Quantity)
+		woInfo.StationInfos = append(woInfo.StationInfos, si)
 	}
 
 	var c Calculator
@@ -230,10 +230,10 @@ func (woInfo *WorkOrderInfo) NewWorkOrderInfo(wo WorkOrder) {
 
 	woInfo.GoodProductQty = func() (minGood float64) {
 		//1/29 fix
-		for i := 0; i < len(woInfo.StationDetails); i++ {
-			minGood = woInfo.StationDetails[0].GoodQty
-			if minGood > woInfo.StationDetails[i].GoodQty {
-				minGood = woInfo.StationDetails[i].GoodQty
+		for i := 0; i < len(woInfo.StationInfos); i++ {
+			minGood = woInfo.StationInfos[0].GoodQty
+			if minGood > woInfo.StationInfos[i].GoodQty {
+				minGood = woInfo.StationInfos[i].GoodQty
 			}
 		}
 		return
