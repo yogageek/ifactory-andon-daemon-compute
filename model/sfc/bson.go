@@ -3,7 +3,6 @@ package model
 import (
 	"fmt"
 	"iii/ifactory/compute/util"
-	"math"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -50,24 +49,6 @@ func (p *StatsInfo) UnmarshalJSON(data []byte) (err error) {
 type JB struct {
 	WorkOrder     *WorkOrder     `json:"WorkOrder,omitempty" bson:"WorkOrder,omitempty"`
 	WorkOrderList *WorkOrderList `json:"WorkOrderList,omitempty" bson:"WorkOrderList,omitempty"`
-}
-
-func calRealCompletedRate(completedQty, quantity float64) float64 {
-	if r := (completedQty / quantity) * 100; !math.IsNaN(r) {
-		return r
-	}
-	return 0
-}
-
-func calStatus(completedQty, quantity float64) float64 {
-	switch {
-	case completedQty < quantity:
-		return 1 //"低於標準"
-	case completedQty > quantity:
-		return 3 //"高於標準"
-	default:
-		return 2 //"等於標準"
-	}
 }
 
 // // SetBSON implements bson.Setter.
@@ -118,7 +99,7 @@ func calStatus(completedQty, quantity float64) float64 {
 // 工單資訊
 type WorkOrderInfo struct {
 	WorkOrder
-	Stations []Station `json:"Stations,omitempty" bson:"Stations"`
+	StationDetails []StationDetail `json:"Stations,omitempty" bson:"Stations"`
 
 	MixedCompletedQty float64 `json:"MixedCompletedQty,omitempty" bson:"MixedCompletedQty"`
 	MixedGoodQty      float64 `json:"MixedGoodQty,omitempty" bson:"MixedGoodQty"`
@@ -173,31 +154,6 @@ type Product struct {
 	CreateAt time.Time `json:"CreateAt,omitempty" bson:"CreateAt,omitempty"`
 }
 
-type MyStations []struct {
-	Station
-}
-
-// // 改成
-// type StationDetail struct {
-// 	Station
-// 	CalInfo
-// }
-type Station struct {
-	Name         string
-	CompletedQty float64
-	GoodQty      float64
-	NonGoodQty   float64
-
-	CalInfo
-}
-
-type CalInfo struct {
-	ToBeCompletedQty  float64 `json:"-"`
-	RealCompletedRate float64 `json:"-"`
-	EstiCompletedRate float64 `json:"-"`
-	Status            float64 `json:"Status"`
-}
-
 func (o *WorkOrder) NewWorkOrder() {
 
 	o.CreateAt = func() *time.Time {
@@ -228,54 +184,74 @@ func (o *WorkOrderList) NewWorkOrderList(workorderId string) {
 	}()
 }
 
-func (woi *WorkOrderInfo) NewWorkOrderInfo(wo WorkOrder) {
+func (o *WorkOrderList) GenStation() (s Station) {
+	o.CompletedQty = s.CompletedQty
+	o.GoodQty = s.GoodQty
+	o.NonGoodQty = s.NonGoodQty
+	o.StationName = s.Name
+	return
+}
 
-	for _, wol := range wo.WorkOrderList {
-		woi.MixedCompletedQty = woi.MixedCompletedQty + wol.CompletedQty
-		woi.MixedNonGoodQty = woi.MixedNonGoodQty + wol.NonGoodQty
-		woi.MixedGoodQty = woi.MixedCompletedQty - woi.MixedNonGoodQty
-	}
-	woi.Stations = wo.calStationInfo()
+func (woInfo *WorkOrderInfo) NewWorkOrderInfo(wo WorkOrder) {
 
-	woi.MixedGoodQtyRate = func() float64 {
-		if r := woi.MixedGoodQty / woi.MixedCompletedQty; !math.IsNaN(r) {
-			return r
-		}
-		return 0
-	}()
+	// try
+	// var Stations Stations
+	var stations []Station
 
-	woi.GoodProductQty = func() (minGood float64) {
-		//當有工單沒報工會error
-		// minGood = woi.Stations[0].GoodQty
-		// for _, s := range woi.Stations {
-		// 	if minGood > s.GoodQty {
-		// 		minGood = s.GoodQty
-		// 	}
+	for _, wolist := range wo.WorkOrderList {
+		// old style
+		// w.MixedCompletedQty = w.MixedCompletedQty + l.CompletedQty
+		// w.MixedNonGoodQty = w.MixedNonGoodQty + l.NonGoodQty
+		// w.MixedGoodQty = w.MixedCompletedQty - w.MixedNonGoodQty
+		// new style
+		woInfo.MixedCompletedQty += wolist.CompletedQty
+		woInfo.MixedNonGoodQty += wolist.NonGoodQty
+		woInfo.MixedGoodQty += wolist.GoodQty
+
+		// try
+		// for _, v := range Stations {
+		// 	v.Station = wolist.GenStation()
 		// }
 
+		//gen stations by wolists
+		stations = append(stations, wolist.GenStation())
+	}
+
+	//stations logic
+	mStations := groupStationsByName(stations)
+	for name, stations := range mStations {
+		var stationDetail StationDetail
+		stationDetail.NewStationDetail(name, stations, wo.Quantity)
+		woInfo.StationDetails = append(woInfo.StationDetails, stationDetail)
+	}
+
+	var c Calculator
+	woInfo.MixedGoodQtyRate = c.calGoodQtyRate(woInfo.MixedGoodQty, woInfo.MixedCompletedQty)
+
+	woInfo.GoodProductQty = func() (minGood float64) {
 		//1/29 fix
-		for i := 0; i < len(woi.Stations); i++ {
-			minGood = woi.Stations[0].GoodQty
-			if minGood > woi.Stations[i].GoodQty {
-				minGood = woi.Stations[i].GoodQty
+		for i := 0; i < len(woInfo.StationDetails); i++ {
+			minGood = woInfo.StationDetails[0].GoodQty
+			if minGood > woInfo.StationDetails[i].GoodQty {
+				minGood = woInfo.StationDetails[i].GoodQty
 			}
 		}
-
 		return
 	}()
 
-	woi.Status = func() string {
-		if wo.Quantity <= woi.GoodProductQty {
+	woInfo.Status = func() string {
+		if wo.Quantity <= woInfo.GoodProductQty {
 			return "2"
 		}
 		return "1"
 	}()
 
-	woi.WorkOrder = wo
+	woInfo.WorkOrder = wo
 }
 
 //----------->
 
+//deprecated
 func (o *WorkOrder) calStationInfo() (stations []Station) {
 	wols := o.WorkOrderList
 
@@ -293,8 +269,8 @@ func (o *WorkOrder) calStationInfo() (stations []Station) {
 		mStation[s].NonGoodQty = mStation[s].NonGoodQty + wol.NonGoodQty
 		mStation[s].GoodQty = mStation[s].CompletedQty - mStation[s].NonGoodQty
 
-		mStation[s].CalInfo.ToBeCompletedQty = o.Quantity - mStation[s].GoodQty
-		mStation[s].CalInfo.Status = calStatus(mStation[s].CompletedQty, o.Quantity)
+		// mStation[s].StationCalInfo.ToBeCompletedQty = o.Quantity - mStation[s].GoodQty
+		// mStation[s].StationCalInfo.Status = calStatus(mStation[s].CompletedQty, o.Quantity)
 	}
 
 	for _, v := range mStation {

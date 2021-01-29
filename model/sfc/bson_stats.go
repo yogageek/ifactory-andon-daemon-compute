@@ -24,10 +24,12 @@ type StatsInfo struct {
 }
 
 func (s *StatsInfo) CalStats() {
+	var c Cal
+
 	s.GoodQty = s.CompletedQty - s.NonGoodQty
-	s.ToBeCompletedQty = s.Quantity - s.GoodQty
-	s.Status = calStatus(s.CompletedQty, s.Quantity)
-	s.RealCompletedRate = calRealCompletedRate(s.CompletedQty, s.Quantity)
+	s.ToBeCompletedQty = c.calToBeCompletedQty(s.Quantity, s.GoodQty)
+	s.Status = c.calStatus(s.CompletedQty, s.Quantity)
+	s.RealCompletedRate = c.calRealCompletedRate(s.CompletedQty, s.Quantity)
 	s.GoodQtyRate = func() float64 {
 		if r := s.GoodQty / s.Quantity; !math.IsNaN(r) {
 			return r
