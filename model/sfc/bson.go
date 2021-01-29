@@ -126,8 +126,8 @@ type WorkOrderInfo struct {
 
 	GoodProductQty float64 `json:"GoodProductQty" bson:"GoodProductQty"`
 
-	GoodQtyRate     float64 `json:"GoodQtyRate,omitempty" bson:"GoodQtyRate"`
-	GoodProductRate float64 `json:"GoodProductRate,omitempty" bson:"GoodProductRate"`
+	GoodQtyRate        float64 `json:"GoodQtyRate,omitempty" bson:"GoodQtyRate"`
+	GoodProductQtyRate float64 `json:"GoodProductQtyRate,omitempty" bson:"GoodProductQtyRate"`
 
 	Status string `json:"Status,omitempty" bson:"Status"`
 }
