@@ -101,16 +101,17 @@ type WorkOrderInfo struct {
 	WorkOrder
 	StationInfos []StationInfo `json:"StationInfos,omitempty" bson:"StationInfos"`
 
-	MixedCompletedQty float64 `json:"MixedCompletedQty,omitempty" bson:"MixedCompletedQty"`
-	MixedGoodQty      float64 `json:"MixedGoodQty,omitempty" bson:"MixedGoodQty"`
-	MixedNonGoodQty   float64 `json:"MixedNonGoodQty,omitempty" bson:"MixedNonGoodQty"`
-
 	GoodProductQty float64 `json:"GoodProductQty" bson:"GoodProductQty"`
 
-	MixedGoodQtyRate   float64 `json:"MixedGoodQtyRate,omitempty" bson:"MixedGoodQtyRate"`
-	GoodProductQtyRate float64 `json:"GoodProductQtyRate,omitempty" bson:"GoodProductQtyRate"`
+	MixedCompletedQty float64 `json:"MixedCompletedQty" bson:"MixedCompletedQty"`
+	MixedGoodQty      float64 `json:"MixedGoodQty" bson:"MixedGoodQty"`
+	MixedNonGoodQty   float64 `json:"MixedNonGoodQty" bson:"MixedNonGoodQty"`
 
-	Status string `json:"Status,omitempty" bson:"Status"`
+	MixedGoodQtyRate float64 `json:"MixedGoodQtyRate" bson:"MixedGoodQtyRate"`
+
+	// GoodProductQtyRate float64 `json:"GoodProductQtyRate,omitempty" bson:"GoodProductQtyRate"`
+
+	Status string `json:"Status" bson:"Status"`
 }
 
 //工單
@@ -221,10 +222,11 @@ func (woInfo *WorkOrderInfo) NewWorkOrderInfo(wo WorkOrder) {
 	mStations := groupStationsByName(stations)
 	for name, stations := range mStations {
 		var si StationInfo
-		si.NewStationDetail(name, stations, wo.Quantity)
+		si.NewStationInfo(name, stations, wo.Quantity)
 		woInfo.StationInfos = append(woInfo.StationInfos, si)
 	}
 
+	//暫用
 	var c Calculator
 	woInfo.MixedGoodQtyRate = c.calGoodQtyRate(woInfo.MixedGoodQty, woInfo.MixedCompletedQty)
 
