@@ -152,6 +152,7 @@ type WorkOrderList struct {
 	Id          bson.ObjectId `json:"id,omitempty" bson:"_id,omitempty"`
 	WorkOrderId string        `json:"WorkOrderId,omitempty" bson:"WorkOrderId"`
 
+	//是否把station模組放到這取代以下三欄?
 	CompletedQty float64 `json:"CompletedQty,omitempty" bson:"CompletedQty,omitempty"` //注意!!!不加empty會嚴重影響到push功能而且查不出來!因為c.Update(selector, updated) 系統會自動把selector=interface{}轉成bson,沒帶omitempty會parse成"""
 	NonGoodQty   float64 `json:"NonGoodQty,omitempty" bson:"NonGoodQty,omitempty"`
 	StationName  string  `json:"StationName,omitempty" bson:"StationName,omitempty" validate:"required"` //注意!!!不加empty會嚴重影響到push功能而且查不出來!
@@ -189,7 +190,7 @@ type CalInfo struct {
 	Status            float64 `json:"Status"`
 }
 
-func (o *WorkOrder) CreateWithDefault() {
+func (o *WorkOrder) NewWorkOrder() {
 
 	o.CreateAt = func() *time.Time {
 		now := util.GetNow()
@@ -204,11 +205,11 @@ func (o *WorkOrder) CreateWithDefault() {
 	}()
 	//同時賦予報工單ID
 	for _, oo := range o.WorkOrderList {
-		oo.CreateWithDefault(o.WorkOrderId)
+		oo.NewWorkOrderList(o.WorkOrderId)
 	}
 }
 
-func (o *WorkOrderList) CreateWithDefault(workorderId string) {
+func (o *WorkOrderList) NewWorkOrderList(workorderId string) {
 	o.Id = bson.NewObjectId()
 	o.WorkOrderId = workorderId
 	o.CreateAt = func() *time.Time {
@@ -217,7 +218,7 @@ func (o *WorkOrderList) CreateWithDefault(workorderId string) {
 	}()
 }
 
-func (woi *WorkOrderInfo) CreateWorkOrderInfo(wo WorkOrder) {
+func (woi *WorkOrderInfo) NewWorkOrderInfo(wo WorkOrder) {
 
 	for _, wol := range wo.WorkOrderList {
 		woi.CompletedQty = woi.CompletedQty + wol.CompletedQty

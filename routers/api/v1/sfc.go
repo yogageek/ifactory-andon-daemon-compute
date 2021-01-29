@@ -136,7 +136,7 @@ func PostWorkOrders(c *gin.Context) {
 	var wo model.WorkOrder
 	err := FromJson(string(body), &wo)
 
-	wo.CreateWithDefault()
+	wo.NewWorkOrder()
 
 	if err != nil {
 		// c.String(http.StatusOK, `error~~~~`)
@@ -188,7 +188,7 @@ func PostWorkOrderLists(c *gin.Context) {
 
 	//set initial value
 	for _, wol := range wols {
-		wol.CreateWithDefault(workorderId)
+		wol.NewWorkOrderList(workorderId)
 	}
 
 	//append wolist到wo底下

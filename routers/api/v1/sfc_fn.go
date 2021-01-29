@@ -33,7 +33,7 @@ func FindWorkOrdersInfo() (wosInfo []model.WorkOrderInfo, err error) {
 	}
 	for _, wo := range wos {
 		var woInfo model.WorkOrderInfo
-		woInfo.CreateWorkOrderInfo(wo)
+		woInfo.NewWorkOrderInfo(wo)
 		wosInfo = append(wosInfo, woInfo)
 	}
 	return wosInfo, nil
