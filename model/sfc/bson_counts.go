@@ -31,7 +31,7 @@ func (s *CountInfos) NewCountInfos(wois []WorkOrderInfo) {
 		s.WorkOrder.EachTypeCount[fmt.Sprintf("%v", woi.Status)]++
 		s.WorkOrder.TypeCount = float64(len(s.WorkOrder.EachTypeCount))
 
-		for _, sta := range woi.StationDetails {
+		for _, sta := range woi.StationInfos {
 			s.Station.Count++
 			s.Station.EachTypeCount[fmt.Sprintf("%v", sta.Name)]++
 			s.Station.TypeCount = float64(len(s.Station.EachTypeCount))

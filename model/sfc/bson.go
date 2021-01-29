@@ -8,93 +8,11 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// tutorial
-// func (m *StatsInfo) UnmarshalBSON(data []byte) error {
-// 	// Unmarshal into a temporary type where the "ends" field is a string.
-// 	decoded := new(struct {
-// 		ID   primitive.ObjectID `bson:"_id"`
-// 		Ends string             `bson:"ends"`
-// 	})
-// 	if err := bson.Unmarshal(data, decoded); err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-func (c StatsInfo) GetBSON() (interface{}, error) {
-	// f := c.Value().Float64()
-	// return struct {
-	// 	Value        float64 `json:"value" bson:"value"`
-	// 	CurrencyCode string  `json:"currencyCode" bson:"currencyCode"`
-	// }{
-	// 	Value:        f,
-	// 	CurrencyCode: c.currencyCode,
-	// }, nil
-	return nil, nil
-}
-
-func (p *StatsInfo) UnmarshalJSON(data []byte) (err error) {
-
-	// var res ProfileJSON
-	fmt.Println("x")
-	// if err := json.Unmarshal(data, &res); err != nil {
-	// 	return err
-	// }
-	// return nil
-	return nil
-}
-
 //-------------
 type JB struct {
 	WorkOrder     *WorkOrder     `json:"WorkOrder,omitempty" bson:"WorkOrder,omitempty"`
 	WorkOrderList *WorkOrderList `json:"WorkOrderList,omitempty" bson:"WorkOrderList,omitempty"`
 }
-
-// // SetBSON implements bson.Setter.
-// func (c *StatsInfo) SetBSON(raw bson.Raw) error {
-
-// 	// decoded := new(struct { })
-// 	type newStatsInfo StatsInfo
-// 	s := new(newStatsInfo)
-
-// 	bsonErr := raw.Unmarshal(s)
-// 	if bsonErr != nil {
-// 		return bsonErr
-// 	}
-// 	// util.PrintJson(s)
-
-// 	s.RealCompletedRate = func() float64 {
-// 		if r := (s.CompletedQty / s.Quantity) * 100; !math.IsNaN(r) {
-// 			return r
-// 		}
-// 		return 0
-// 	}()
-// 	s.Status = func() float64 {
-// 		switch {
-// 		case s.CompletedQty < s.Quantity:
-// 			return -1 //"低於標準"
-// 		case s.CompletedQty > s.Quantity:
-// 			return 1 //"高於標準"
-// 		default:
-// 			return 0 //"等於標準"
-// 		}
-// 	}()
-// 	s.NonGoodQty = s.CompletedQty - s.NonGoodQty
-
-// 	c.WorkOrderId = s.WorkOrderId
-// 	c.CompletedQty = s.CompletedQty
-// 	c.GoodQty = s.GoodQty
-// 	c.Quantity = s.Quantity
-// 	c.StationName = s.StationName
-// 	c.Status = s.Status
-// 	c.RealCompletedRate = s.RealCompletedRate
-// 	c.NonGoodQty = s.NonGoodQty
-
-// 	// util.PrintJson(c)
-
-// 	return nil
-// }
 
 // 工單資訊
 type WorkOrderInfo struct {
@@ -251,83 +169,84 @@ func (woInfo *WorkOrderInfo) NewWorkOrderInfo(wo WorkOrder) {
 	woInfo.WorkOrder = wo
 }
 
-//----------->
+// // SetBSON implements bson.Setter.
+// func (c *StatsInfo) SetBSON(raw bson.Raw) error {
 
-//deprecated
-func (o *WorkOrder) calStationInfo() (stations []Station) {
-	wols := o.WorkOrderList
+// 	// decoded := new(struct { })
+// 	type newStatsInfo StatsInfo
+// 	s := new(newStatsInfo)
 
-	//method1
-	mStation := map[string]*Station{}
-	for _, wol := range wols {
-		s := wol.StationName
+// 	bsonErr := raw.Unmarshal(s)
+// 	if bsonErr != nil {
+// 		return bsonErr
+// 	}
+// 	// util.PrintJson(s)
 
-		if mStation[s] == nil {
-			mStation[s] = &Station{
-				Name: s,
-			}
-		}
-		mStation[s].CompletedQty = mStation[s].CompletedQty + wol.CompletedQty
-		mStation[s].NonGoodQty = mStation[s].NonGoodQty + wol.NonGoodQty
-		mStation[s].GoodQty = mStation[s].CompletedQty - mStation[s].NonGoodQty
+// 	s.RealCompletedRate = func() float64 {
+// 		if r := (s.CompletedQty / s.Quantity) * 100; !math.IsNaN(r) {
+// 			return r
+// 		}
+// 		return 0
+// 	}()
+// 	s.Status = func() float64 {
+// 		switch {
+// 		case s.CompletedQty < s.Quantity:
+// 			return -1 //"低於標準"
+// 		case s.CompletedQty > s.Quantity:
+// 			return 1 //"高於標準"
+// 		default:
+// 			return 0 //"等於標準"
+// 		}
+// 	}()
+// 	s.NonGoodQty = s.CompletedQty - s.NonGoodQty
 
-		// mStation[s].StationCalInfo.ToBeCompletedQty = o.Quantity - mStation[s].GoodQty
-		// mStation[s].StationCalInfo.Status = calStatus(mStation[s].CompletedQty, o.Quantity)
-	}
+// 	c.WorkOrderId = s.WorkOrderId
+// 	c.CompletedQty = s.CompletedQty
+// 	c.GoodQty = s.GoodQty
+// 	c.Quantity = s.Quantity
+// 	c.StationName = s.StationName
+// 	c.Status = s.Status
+// 	c.RealCompletedRate = s.RealCompletedRate
+// 	c.NonGoodQty = s.NonGoodQty
 
-	for _, v := range mStation {
-		stations = append(stations, *v)
-	}
-	return
+// 	// util.PrintJson(c)
 
-	// //method2
-	// for _, stationName := range stationNames {
-	// 	stationInfo := &StationInfo{
-	// 		Name: stationName,
-	// 	}
-	// 	for _, wol := range wols {
-	// 		s := wol.StationName
-	// 		if s == stationInfo.Name {
-	// 			stationInfo.CompleteQty = stationInfo.CompleteQty + wol.CompletedQty
-	// 			stationInfo.NonGoodQty = stationInfo.NonGoodQty + wol.NonGoodQty
-	// 		}
-	// 	}
-	// 	stationInfos = append(stationInfos, stationInfo)
-	// }
-	// return stationInfos
+// 	return nil
+// }
+
+// tutorial
+// func (m *StatsInfo) UnmarshalBSON(data []byte) error {
+// 	// Unmarshal into a temporary type where the "ends" field is a string.
+// 	decoded := new(struct {
+// 		ID   primitive.ObjectID `bson:"_id"`
+// 		Ends string             `bson:"ends"`
+// 	})
+// 	if err := bson.Unmarshal(data, decoded); err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }
+
+func (c StatsInfo) GetBSON() (interface{}, error) {
+	// f := c.Value().Float64()
+	// return struct {
+	// 	Value        float64 `json:"value" bson:"value"`
+	// 	CurrencyCode string  `json:"currencyCode" bson:"currencyCode"`
+	// }{
+	// 	Value:        f,
+	// 	CurrencyCode: c.currencyCode,
+	// }, nil
+	return nil, nil
 }
 
-//----------------------->
+func (p *StatsInfo) UnmarshalJSON(data []byte) (err error) {
 
-//important~!
-
-// myStations := MyStations{struct{ Station }{
-// 	Station: Station{},
-// }}
-
-// "MyStations": [
-//             {
-//                 "Name": "A1",
-//                 "GoodQty": 100,
-//                 "NonGoodQty": 11,
-//                 "CompletedQty": 111
-//             }
-//         ]
-
-// func (ss MyStations) CalSample() {
-// 	for _, s := range ss {
-
-// 	}
-// }
-
-// func GetDistinctStationNames(wols []*WorkOrderList) (stationNames []string) {
-// 	m := map[string]bool{}
-// 	for _, wol := range wols {
-// 		s := wol.StationName
-// 		if !m[s] { //如果stationName不存在map裡面
-// 			stationNames = append(stationNames, s)
-// 			m[s] = true
-// 		}
-// 	}
-// 	return
-// }
+	// var res ProfileJSON
+	fmt.Println("x")
+	// if err := json.Unmarshal(data, &res); err != nil {
+	// 	return err
+	// }
+	// return nil
+	return nil
+}

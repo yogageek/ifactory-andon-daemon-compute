@@ -1,7 +1,6 @@
 package model
 
 import (
-	"iii/ifactory/compute/util"
 	"math"
 )
 
@@ -17,11 +16,18 @@ type Station struct {
 	NonGoodQty   float64
 }
 type Calculator struct {
-	ToBeCompletedQty  float64 `json:"ToBeCompletedQty"`
-	GoodQtyRate       float64 `json:"GoodQtyRate"`
-	RealCompletedRate float64 `json:"RealCompletedRate"`
-	EstiCompletedRate float64 `json:"EstiCompletedRate"`
-	Status            float64 `json:"Status"`
+	ToBeCompletedQty  float64 `json:"ToBeCompletedQty" bson:"ToBeCompletedQty"`
+	GoodQtyRate       float64 `json:"GoodQtyRate" bson:"GoodQtyRate"`
+	RealCompletedRate float64 `json:"RealCompletedRate" bson:"RealCompletedRate"`
+	EstiCompletedRate float64 `json:"EstiCompletedRate" bson:"EstiCompletedRate"`
+	Status            float64 `json:"Status" bson:"Status"`
+}
+
+func (c *Calculator) NewCalculator(goodQty, completedQty, quantity float64) {
+	c.ToBeCompletedQty = c.calToBeCompletedQty(quantity, goodQty)
+	c.RealCompletedRate = c.calRealCompletedRate(completedQty, quantity)
+	c.GoodQtyRate = c.calGoodQtyRate(goodQty, completedQty)
+	c.Status = c.calStatus(completedQty, quantity)
 }
 
 func groupStationsByName(stations []Station) (m map[string][]Station) {
@@ -29,7 +35,7 @@ func groupStationsByName(stations []Station) (m map[string][]Station) {
 	for _, s := range stations {
 		m[s.Name] = append(m[s.Name], s)
 	}
-	util.PrintJson(m)
+	// util.PrintJson(m)
 	return
 }
 
@@ -43,10 +49,14 @@ func (s *StationInfo) NewStationInfo(name string, stations []Station, quantity f
 	}
 
 	var c Calculator
-	s.ToBeCompletedQty = c.calToBeCompletedQty(quantity, s.GoodQty)
-	s.RealCompletedRate = c.calRealCompletedRate(s.CompletedQty, quantity)
-	s.GoodQtyRate = c.calGoodQtyRate(s.GoodQty, s.CompletedQty)
-	s.Status = s.calStatus(s.CompletedQty, quantity)
+	// old style
+	// s.ToBeCompletedQty = c.calToBeCompletedQty(quantity, s.GoodQty)
+	// s.RealCompletedRate = c.calRealCompletedRate(s.CompletedQty, quantity)
+	// s.GoodQtyRate = c.calGoodQtyRate(s.GoodQty, s.CompletedQty)
+	// s.Status = s.calStatus(s.CompletedQty, quantity)
+	c.NewCalculator(s.GoodQty, s.CompletedQty, quantity)
+	s.Calculator = c
+
 }
 
 //移到new struct pointer func名為計算模組
