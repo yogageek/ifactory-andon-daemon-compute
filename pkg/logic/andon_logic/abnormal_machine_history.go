@@ -1,10 +1,10 @@
-package compute_logic
+package andon_logic
 
 import (
 	"fmt"
 
 	"iii/ifactory/compute/db"
-	"iii/ifactory/compute/model"
+	model "iii/ifactory/compute/model/andon"
 	"iii/ifactory/compute/util"
 
 	"github.com/golang/glog"
