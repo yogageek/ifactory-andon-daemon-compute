@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"iii/ifactory/compute/db"
-	"iii/ifactory/compute/pkg/logic"
+	"iii/ifactory/compute/pkg/logic/andon_logic"
 
 	"iii/ifactory/compute/routers"
 	"iii/ifactory/compute/setenv"
@@ -42,7 +42,7 @@ func doSth() {
 	// util.PrintJson(r)
 	// db.L()
 
-	go logic.RunDaemonLoop()
+	go andon_logic.RunDaemonLoop()
 }
 
 func setFlag() {

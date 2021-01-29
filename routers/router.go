@@ -1,7 +1,7 @@
 package routers
 
 import (
-	v1 "iii/ifactory/compute/routers/api/v1"
+	v1 "iii/ifactory/compute/routers/api/sfc/v1"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,7 +1,6 @@
-package logic
+package andon_logic
 
 import (
-	andon_logic "iii/ifactory/compute/pkg/logic/andon_logic"
 	"time"
 	// . "measure/logic"
 )
@@ -20,7 +19,7 @@ func RunDaemonLoop() {
 			// wg := sync.WaitGroup{}
 			// wg.Add(2)
 
-			andon_logic.Daemon_AbnormalMachineLatest()
+			Daemon_AbnormalMachineLatest()
 			// andon_logic.Daemon_AbnormalMachineHist()
 
 			// wg.Wait()
