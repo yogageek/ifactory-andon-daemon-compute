@@ -52,10 +52,7 @@ func GetCounts(c *gin.Context) {
 	//get all workordersInfo----------------------------
 	wos, _ := FindWorkOrdersInfo()
 	ci.NewCountInfos(wos)
-
-	a := []string{"a"}
-	b := []interface{}{"a"}
-	r := model.GenGrafanaResponse(a, b, ci)
+	r := model.GenGrafanaResponse(ci)
 	c.JSON(http.StatusOK, r)
 }
 
