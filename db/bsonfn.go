@@ -12,6 +12,25 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+type Updater struct {
+	Id   string `json:"_id,omitempty" bson:"_id,omitempty"`
+	Pull map[string]interface{}
+}
+
+func (a *Updater) GenId(str interface{}) interface{} {
+	r := map[string]interface{}{
+		"_id": str,
+	}
+	return r
+}
+
+func (a *Updater) GenPull(object interface{}) interface{} {
+	r := map[string]interface{}{
+		"$pull": object,
+	}
+	return r
+}
+
 // func L() {
 // 	// var i []interface{}
 // 	var i []model.WorkOrder
@@ -197,7 +216,7 @@ func Upsert(collection string, query bson.M, setvalue interface{}) (info *mgo.Ch
 	return i
 }
 
-func Update(collection string, option interface{}, setvalue bson.M) {
+func Update(collection string, option interface{}, setvalue interface{}) {
 	c := MongoDB.UseC(collection)
 	err := c.Update(option, setvalue)
 	if err != nil {
