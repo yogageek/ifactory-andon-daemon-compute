@@ -11,9 +11,7 @@ import (
 	"io/ioutil"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang/glog"
 	. "github.com/logrusorgru/aurora"
-	"gopkg.in/mgo.v2/bson"
 )
 
 /*
@@ -22,117 +20,6 @@ DefaultQuery 的話如果沒有 firstname 這參數，就會給預設值第二�
 firstname := c.DefaultQuery("firstname", "None")
 lastname := c.Query("lastname")
 */
-
-//DELETE
-func DeleteWorkOrders(c *gin.Context) {
-
-	id := c.Param("id")
-
-	//use Remove
-	// selector := model.WorkOrder{Id: bson.ObjectIdHex(id)} //ok
-	// selector := bson.M{"WorkOrderId": "20210126-60102a40959582230048b355"} //ok
-	// selector := bson.M{"_id": bson.ObjectIdHex(id)} //ok
-
-	//use RemoveId
-	selector := bson.ObjectIdHex(id) //ok
-
-	err := db.MongoDB.UseC(model.C.Workorder).RemoveId(selector)
-	if err != nil {
-		glog.Error(err)
-	}
-
-	/*
-		//modify sepc, use workorderId to delete
-		workorderId := c.Param("workorderId")
-		selector := model.WorkOrder{WorkOrderId: workorderId}
-		err := db.MongoDB.UseC(model.C.Workorder).Remove(selector)
-		if err != nil {
-			glog.Error(err)
-		}
-	*/
-
-	//delete到底要用哪種id
-	//如果都用_id,gin naming會重複 但restful設計沒問題
-}
-
-//doing here
-func DeleteWorkOrderLists(c *gin.Context) {
-	// workorderId := c.Param("workorderId")
-	id := c.Param("id")
-	id2 := c.Param("id2")
-	fmt.Println(id, ",", id2)
-
-	//new style
-	var updater db.Updater
-	selector := updater.GenId(id)
-	update := updater.GenPull("WorkOrderList", id2)
-	db.Update(model.C.Workorder, selector, update)
-
-	/*
-		//old style
-		selector := map[string]interface{}{
-			"_id": bson.ObjectIdHex(id),
-		}
-		update := map[string]interface{}{
-			"$pull": bson.M{"WorkOrderList": bson.M{"_id": bson.ObjectIdHex(id2)}},
-		}
-		dbc := db.MongoDB.UseC(model.C.Workorder)
-		err := dbc.Update(selector, update)
-		if err != nil {
-			glog.Error(util.Cerr(err))
-		}
-	*/
-
-	// unset用法
-	// db.Update({"name":"zhang"},{$unset:{"age":1}})
-}
-
-//GET Stats-----------------------------------------------------------
-func GetCounts(c *gin.Context) {
-	var ci model.CountInfos
-
-	//get all workordersInfo----------------------------
-	wos, _ := FindWorkOrdersInfo()
-	ci.NewCountInfos(wos)
-	r := model.GenGrafanaResponse(ci)
-	c.JSON(http.StatusOK, r)
-}
-
-func GetTables(c *gin.Context) {
-	groupBy := c.Query("groupBy")
-
-	var stsInfo []*model.StatsInfo
-	if groupBy == "station" {
-		agg := db.Agg{}
-		agg.GenUnwind("WorkOrderList")
-		agg.GenGroup(
-			"WorkOrderList",
-			[]string{"WorkOrderId", "StationName"},
-			[]string{"WorkOrderId", "StationName", "$Quantity"},
-			[]string{"CompletedQty", "NonGoodQty"},
-		)
-		// util.PrintJson(group)
-		err := agg.Aggre(model.C.Workorder, &stsInfo)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, err)
-			return
-		}
-
-		//stats calculate logic
-		for _, s := range stsInfo {
-			s.CalStats()
-		}
-
-		// tutorial
-		// var ms []*model.StatsInfo
-		// if err := bson.Unmarshal(bsonBytes, &ms); err != nil {
-		// 	panic(err)
-		// }
-
-		c.JSON(http.StatusOK, stsInfo)
-	}
-	// util.PrintJson(r)
-}
 
 //可一起找出wo, wolist, product, station...
 func GetWorkOrders(c *gin.Context) {
