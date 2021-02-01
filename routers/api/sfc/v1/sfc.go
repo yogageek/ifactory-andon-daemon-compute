@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"iii/ifactory/compute/db"
 	model "iii/ifactory/compute/model/sfc"
-	"iii/ifactory/compute/util"
 	"net/http"
 
+	"iii/ifactory/compute/util"
 	. "iii/ifactory/compute/util/cch/json"
 	"io/ioutil"
 
@@ -25,6 +25,7 @@ lastname := c.Query("lastname")
 
 //DELETE
 func DeleteWorkOrders(c *gin.Context) {
+
 	id := c.Param("id")
 
 	//use Remove
@@ -39,10 +40,51 @@ func DeleteWorkOrders(c *gin.Context) {
 	if err != nil {
 		glog.Error(err)
 	}
+
+	/*
+		//modify sepc, use workorderId to delete
+		workorderId := c.Param("workorderId")
+		selector := model.WorkOrder{WorkOrderId: workorderId}
+		err := db.MongoDB.UseC(model.C.Workorder).Remove(selector)
+		if err != nil {
+			glog.Error(err)
+		}
+	*/
+
+	//delete到底要用哪種id
+	//如果都用_id,gin naming會重複 但restful設計沒問題
 }
 
+//doing here
 func DeleteWorkOrderLists(c *gin.Context) {
-	// db.person.update({"name":"zhang"},{$unset:{"age":1}})
+	// workorderId := c.Param("workorderId")
+	id := c.Param("id")
+	id2 := c.Param("id2")
+	fmt.Println(id, ",", id2)
+
+	//new style
+	var updater db.Updater
+	selector := updater.GenId(id)
+	update := updater.GenPull("WorkOrderList", id2)
+	db.Update(model.C.Workorder, selector, update)
+
+	/*
+		//old style
+		selector := map[string]interface{}{
+			"_id": bson.ObjectIdHex(id),
+		}
+		update := map[string]interface{}{
+			"$pull": bson.M{"WorkOrderList": bson.M{"_id": bson.ObjectIdHex(id2)}},
+		}
+		dbc := db.MongoDB.UseC(model.C.Workorder)
+		err := dbc.Update(selector, update)
+		if err != nil {
+			glog.Error(util.Cerr(err))
+		}
+	*/
+
+	// unset用法
+	// db.Update({"name":"zhang"},{$unset:{"age":1}})
 }
 
 //GET Stats-----------------------------------------------------------

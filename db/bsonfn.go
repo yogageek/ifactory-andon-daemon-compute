@@ -12,21 +12,32 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+/*mongo shell
+// db.getCollection('iii.sfc.workorder').update(
+//     {"_id":ObjectId("600a7a6a4043b4c7f814ef3a")},
+//     {$pull:{"WorkOrderList":{"_id":ObjectId("600a7a6ab579f90001ca6e21")}}}
+// )
+//
+*/
 type Updater struct {
 	Id   string `json:"_id,omitempty" bson:"_id,omitempty"`
 	Pull map[string]interface{}
 }
 
-func (a *Updater) GenId(str interface{}) interface{} {
+func (a *Updater) GenId(str string) interface{} {
 	r := map[string]interface{}{
-		"_id": str,
+		"_id": bson.ObjectIdHex(str),
 	}
 	return r
 }
 
-func (a *Updater) GenPull(object interface{}) interface{} {
-	r := map[string]interface{}{
-		"$pull": object,
+func (a *Updater) GenPull(field, fieldId string) interface{} {
+	// field = "WorkOrderList"
+	r := bson.M{
+		"$pull": bson.M{
+			field: bson.M{
+				"_id": bson.ObjectIdHex(fieldId)},
+		},
 	}
 	return r
 }
