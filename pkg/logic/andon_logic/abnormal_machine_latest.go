@@ -218,8 +218,13 @@ func trigger(i interface{}) ([]byte, error) {
 		url = "https://ifactory-api-notification-andon-eks005.sa.wise-paas.com/andon/api/v1.0/notification"
 	}
 
+	// 2/4 modify request body spec for lisa
+	var ii []interface{}
+	ii = append(ii, i)
+	util.PrintJson(ii)
+
 	//convert object to json
-	param := req.BodyJSON(&i)
+	param := req.BodyJSON(&ii)
 
 	//res就是打api成功拿到的response, 如果打失敗則拿到err
 	res, err := util.DoAPI("POST", url, param)
