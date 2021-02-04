@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"iii/ifactory/compute/db"
 	model "iii/ifactory/compute/model/sfc"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang/glog"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -25,7 +25,7 @@ func DeleteWorkOrders(c *gin.Context) {
 
 	err := db.MongoDB.UseC(model.C.Workorder).RemoveId(selector)
 	if err != nil {
-		glog.Error(err)
+		c.JSON(http.StatusNotFound, err.Error())
 	}
 
 	/*
@@ -53,7 +53,10 @@ func DeleteWorkOrderLists(c *gin.Context) {
 	var updater db.Updater
 	selector := updater.GenId(id)
 	update := updater.GenPull("WorkOrderList", id2)
-	db.Update(model.C.Workorder, selector, update)
+	err := db.Update(model.C.Workorder, selector, update)
+	if err != nil {
+		c.JSON(http.StatusNotFound, err.Error())
+	}
 
 	/*
 		//old style

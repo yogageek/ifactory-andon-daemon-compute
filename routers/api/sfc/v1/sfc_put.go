@@ -13,6 +13,7 @@ import (
 )
 
 //更新工單
+//也可以直接幫他導向先delete後insert的動作
 func PutWorkOrder(c *gin.Context) {
 	workorderId := c.Param("workorderId") //取得URL中参数
 

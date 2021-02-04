@@ -227,12 +227,14 @@ func Upsert(collection string, query bson.M, setvalue interface{}) (info *mgo.Ch
 	return i
 }
 
-func Update(collection string, option interface{}, setvalue interface{}) {
+func Update(collection string, option interface{}, setvalue interface{}) error {
 	c := MongoDB.UseC(collection)
 	err := c.Update(option, setvalue)
 	if err != nil {
 		glog.Error(util.Cerr(err))
+		return err
 	}
+	return nil
 }
 
 func Remove(collection string, selector interface{}) {
