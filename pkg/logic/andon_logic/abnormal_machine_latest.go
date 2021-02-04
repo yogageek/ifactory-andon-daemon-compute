@@ -221,7 +221,7 @@ func trigger(i interface{}) ([]byte, error) {
 	// 2/4 modify request body spec for lisa
 	var ii []interface{}
 	ii = append(ii, i)
-	util.PrintJson(ii)
+	// util.PrintJson(ii)
 
 	//convert object to json
 	param := req.BodyJSON(&ii)
