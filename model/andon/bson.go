@@ -79,6 +79,7 @@ func GetRandomString(n int) string {
 }
 
 func (o *AbnormalMachineLatest) SetDefaultValue() {
+	o.Id = bson.NewObjectId() //2/19 原本eventlatest表的來源資料有mongo的_id 後來改成string的id 所以這裡為了符合bson格式需要再給它一個正常的mongo _id
 	o.UpdateTime = util.GetNow()
 	o.AbnormalStartTime = o.Timestamp
 	o.ShouldRepairTime = util_business.GetRepairTime(util.GetNow())
