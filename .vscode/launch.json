@@ -16,7 +16,8 @@
            
             //for deploying, using setEnv(直接在程式中寫setEnv)
             "env": {
-                "DEBUG":true
+                // "DEBUG":true
+                "DEBUG":"tg_release"
             },
             "args": []
             

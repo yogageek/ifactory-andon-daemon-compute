@@ -89,10 +89,15 @@ func (o AmLatest) Inserting() {
 				model.QueryKey.EventCode:  data.EventCode, //新增eventcode條件
 			}
 
+			//2/19 原本eventlatest有_id 後來改成string的id 所以這裡為了符合bson格式需要再給它一個正常的mongoid
+			data.Id = bson.NewObjectId()
+
 			//set on insert
 			valueAndOption := bson.M{
 				"$setOnInsert": data, //如果不存在就insert
 			}
+
+			// fmt.Println(data.Id)
 			db.Upsert(o.targetCollection, query, valueAndOption)
 		}
 	}()
