@@ -16,6 +16,11 @@ func SetEnv() {
 		os.Setenv("MONGODB_DATABASE", "tienkang")
 		os.Setenv("MONGODB_USERNAME", "50cc2508-87cb-441e-9d61-9bcd943686f6")
 		os.Setenv("MONGODB_PASSWORD", "yYRiiFW0Kh0ejyLoCfEC3bNB")
+	} else if os.Getenv("DEBUG") == "tg_release" {
+		os.Setenv("MONGODB_URL", "10.0.16.55:27017")
+		os.Setenv("MONGODB_DATABASE", "99569d89-366f-4a92-aef3-e17fc521d370")
+		os.Setenv("MONGODB_USERNAME", "54e9d215-fbf5-4591-87d0-7ad0be51227f")
+		os.Setenv("MONGODB_PASSWORD", "1nsEGzF6gmF70E2BlA1PP25T")
 	} else {
 		os.Setenv("MONGODB_URL", "52.187.110.12:27017")
 		os.Setenv("MONGODB_DATABASE", "ifp-data-hub")

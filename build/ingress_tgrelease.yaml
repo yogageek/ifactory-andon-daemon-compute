@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ifps-andon-daemon-compute-ing
+spec:
+  rules:
+  # 注意這裡的host跟外部網址的host不同，這裡.後面的網域是固定的，改名只能加在前面
+  # 可以先kc get ing, kd ingress/xxx, 查看有通的設定再照著改
+  - host: ifps-andon-daemon-compute.tienkang.eks002.en.internal
+  # 外部網域範例 https://andon-daemon-compute-ifactoryandondev-eks005.sa.wise-paas.com
+    http:
+      paths:
+      - backend:
+          serviceName: ifps-andon-daemon-compute-svc
+          servicePort: 8080
+        path: /
