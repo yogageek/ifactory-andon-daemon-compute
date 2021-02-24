@@ -211,16 +211,8 @@ func (o AmLatest) DoSomething() {
 }
 
 func trigger(i interface{}) ([]byte, error) {
-	var url string
-	if os.Getenv("DEBUG") == "true" {
-		url = "https://api-notification-ifactoryandondev-eks005.sa.wise-paas.com/andon/api/v1.0/notification"
-	} else if os.Getenv("DEBUG") == "tg" {
-		url = "https://api-notification-tienkang-eks005.sa.wise-paas.com/andon/api/v1.0/notification"
-	} else if os.Getenv("DEBUG") == "tg_release" {
-		url = "https://ifps-andon-api-tienkang-eks002.sa.wise-paas.com/andon/api/v1.0/notification"
-	} else {
-		url = "https://ifactory-api-notification-andon-eks005.sa.wise-paas.com/andon/api/v1.0/notification"
-	}
+
+	url := os.Getenv("NOTIFI_URL")
 
 	// 2/4 modify request body spec for lisa
 	var ii []interface{}
