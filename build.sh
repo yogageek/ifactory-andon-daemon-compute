@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # 正式用
-VERSION="latest"
-CONTAINER="andon-daemon-compute"
+VERSION="demo"
+CONTAINER="ifps-andon-daemon-compute"
 
 # docker location
 DOCKER_REPO="iiicondor/$CONTAINER"
-HARBOR_REPO="iiicondor/andon-daemon-compute"
+HARBOR_REPO="iiicondor/ifps-andon-daemon-compute"
 
 docker build --network=host -t $DOCKER_REPO:$VERSION .
 docker tag $DOCKER_REPO:$VERSION $HARBOR_REPO:$VERSION
