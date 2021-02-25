@@ -21,6 +21,7 @@ func init() {
 	setenv.SetEnv()
 
 	db.StartMongo()
+	go db.MongoHealCheckLoop()
 }
 
 var port = ":8080"

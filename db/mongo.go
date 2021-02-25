@@ -4,6 +4,7 @@ import (
 	// _ "iii/m2i/v1/setenv" //可以使用_ "github.com/xxx/xxx"引入包，提前在這支前做init裡的方法
 
 	"os"
+	"time"
 
 	"github.com/golang/glog"
 	"gopkg.in/mgo.v2"
@@ -22,6 +23,23 @@ var (
 
 type mongoDB struct {
 	Db *mgo.Database
+}
+
+func MongoHealCheckLoop() {
+	d := time.Second * time.Duration(60)
+
+	check := func() {
+		s := MongoDB.Db.Session
+		if err := s.Ping(); err != nil {
+			glog.Error("MongoHealCheckLoop Err:", err)
+			MongoDB = NewMongo()
+		}
+	}
+
+	for {
+		check()
+		time.Sleep(d)
+	}
 }
 
 func StartMongo() {
