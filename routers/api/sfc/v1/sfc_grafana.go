@@ -54,3 +54,19 @@ func GetTables(c *gin.Context) {
 	}
 	// util.PrintJson(r)
 }
+
+//Switching Panel-----------------------------------------------------------
+func GetListsOfWorkOrderId(c *gin.Context) {
+	//get all workordersInfo----------------------------
+	wos, _ := FindWorkOrdersInfo()
+	mm := []map[string]interface{}{}
+	for _, wo := range wos {
+		id := wo.WorkOrderId
+		m := map[string]interface{}{
+			"text":  id,
+			"value": id,
+		}
+		mm = append(mm, m)
+	}
+	c.JSON(http.StatusOK, mm)
+}
