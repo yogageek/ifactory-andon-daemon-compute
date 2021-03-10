@@ -79,13 +79,18 @@ func (o *WorkOrder) NewWorkOrder() {
 		now := util.GetNow()
 		return &now
 	}()
-	//工單產生ID
-	o.WorkOrderId = func() string {
-		layout := "20060102"
-		t := o.CreateAt.Format(layout)
-		id := bson.NewObjectId().Hex()
-		return t + "-" + id
-	}()
+
+	// #M拿掉自動生成workorderId功能
+	/*
+		//工單產生ID
+		o.WorkOrderId = func() string {
+			layout := "20060102"
+			t := o.CreateAt.Format(layout)
+			id := bson.NewObjectId().Hex()
+			return t + "-" + id
+			}()
+	*/
+
 	//同時賦予報工單ID
 	for _, oo := range o.WorkOrderList {
 		oo.NewWorkOrderList(o.WorkOrderId)
