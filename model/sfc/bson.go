@@ -53,10 +53,11 @@ type WorkOrderList struct {
 	WorkOrderId string        `json:"WorkOrderId,omitempty" bson:"WorkOrderId"`
 
 	//#是否把station模組放到這取代以下四欄?(但是會動到很多地方)
-	StationName  string  `json:"StationName,omitempty" bson:"StationName,omitempty" validate:"required"` //注意!!!不加empty會嚴重影響到push功能而且查不出來!
-	CompletedQty float64 `json:"CompletedQty,omitempty" bson:"CompletedQty,omitempty"`                   //注意!!!不加empty會嚴重影響到push功能而且查不出來!因為c.Update(selector, updated) 系統會自動把selector=interface{}轉成bson,沒帶omitempty會parse成"""
-	GoodQty      float64 `json:"GoodQty,omitempty" bson:"GoodQty,omitempty"`
-	NonGoodQty   float64 `json:"NonGoodQty,omitempty" bson:"NonGoodQty,omitempty"`
+	StationName string `json:"StationName,omitempty" bson:"StationName,omitempty" validate:"required"` //注意!!!不加empty會嚴重影響到push功能而且查不出來!
+	//#F 拿掉3個Qty的omitempty,否則數量剛好為0的時候,GET會略過這個key
+	CompletedQty float64 `json:"CompletedQty" bson:"CompletedQty,omitempty"` //注意!!!不加empty會嚴重影響到push功能而且查不出來!因為c.Update(selector, updated) 系統會自動把selector=interface{}轉成bson,沒帶omitempty會parse成"""
+	GoodQty      float64 `json:"GoodQty" bson:"GoodQty,omitempty"`
+	NonGoodQty   float64 `json:"NonGoodQty" bson:"NonGoodQty,omitempty"`
 
 	Reporter string     `json:"Reporter,omitempty" bson:"Reporter,omitempty" validate:"required"`
 	CreateAt *time.Time `json:"CreateAt,omitempty" bson:"CreateAt,omitempty"`
