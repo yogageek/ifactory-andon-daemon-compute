@@ -3,6 +3,7 @@ package v1
 import (
 	"iii/ifactory/compute/db"
 	model "iii/ifactory/compute/model/sfc"
+	"iii/ifactory/compute/util"
 
 	"github.com/golang/glog"
 )
@@ -95,16 +96,15 @@ func FindWorkOrdersInfo() (wosInfo []model.WorkOrderInfo, err error) {
 func UpdateWorkOrder(workorderId string, wo *model.WorkOrder) error {
 
 	//temprary wo (為了不誤修改其他值)
-	func() {
-		// wo = model.WorkOrder{
-		// 	WorkOrderId: "",
-		// }
-		wo.WorkOrderId = ""
-	}()
+	// func() {
+	// 	wo.WorkOrderId = ""
+	// }()
 
 	selector := model.WorkOrder{
 		WorkOrderId: workorderId,
 	}
+
+	util.PrintJson(wo)
 
 	//注意bson有無帶omitempty, 因為mgo會將interface轉bson傳入, 如果是日期格時會默認起始值
 	err := db.UpdateOne(model.C.Workorder, selector, wo)

@@ -38,7 +38,7 @@ func InitRouter() *gin.Engine {
 
 		apiv1.DELETE("/workorders/:id", v1.DeleteWorkOrders)
 		apiv1.DELETE("/workorders/:id/workorderLists/:id2", v1.DeleteWorkOrderLists)
-		// apiv1.PUT("/workorders/:workorderId", v1.PutWorkOrder)
+		apiv1.PUT("/workorders/:workorderId", v1.PutWorkOrder)
 
 		apiv1.GET("/grafana/tables", v1.GetTables) //列出all wo(包含底下list,product等資訊)
 		apiv1.GET("/grafana/counts", v1.GetCounts) //列出all wo(包含底下list,product等資訊)
