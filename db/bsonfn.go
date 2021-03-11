@@ -237,6 +237,27 @@ func Update(collection string, option interface{}, setvalue interface{}) error {
 	return nil
 }
 
+func UpdateIfOneFieldExistOrNot(collection string, selector interface{}, updatedValue interface{}, fieldName string, isExist bool) error {
+	c := MongoDB.UseC(collection)
+
+	selectorExist := bson.M{"$exist": isExist}
+
+	selectors := []interface{}{}
+	selectors = append(selectors, selector)
+	selectors = append(selectors, selectorExist)
+
+	updatedSet := bson.M{"$set": updatedValue}
+
+	util.PrintJson(selector)
+	util.PrintJson(updatedSet)
+	err := c.Update(selector, updatedSet)
+	if err != nil {
+		glog.Error(util.Cerr(err))
+		return err
+	}
+	return nil
+}
+
 func Remove(collection string, selector interface{}) {
 	c := MongoDB.UseC(collection)
 	// fmt.Printf("%+v", selector)

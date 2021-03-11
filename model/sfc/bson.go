@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"iii/ifactory/compute/util"
+
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -45,6 +46,11 @@ type WorkOrder struct {
 	WorkOrderList []*WorkOrderList `json:"WorkOrderList,omitempty" bson:"WorkOrderList,omitempty"`
 
 	CreateAt *time.Time `json:"CreateAt,omitempty" bson:"CreateAt,omitempty"`
+
+	// #M 新增完成時間
+	FinishAt *time.Time `json:"FinishAt,omitempty" bson:"FinishAt,omitempty"`
+	// #M 新增開始時間(前端會帶進來點選畫面的時間)
+	StartAt *time.Time `json:"StartAt,omitempty" bson:"StartAt,omitempty"`
 }
 
 //報工單
@@ -155,9 +161,9 @@ func (woInfo *WorkOrderInfo) NewWorkOrderInfo(wo WorkOrder) {
 
 	woInfo.Status = func() string {
 		if wo.Quantity <= woInfo.GoodProductQty {
-			return "2"
+			return "2" //已完成
 		}
-		return "1"
+		return "1" //未完成
 	}()
 
 	woInfo.WorkOrder = wo

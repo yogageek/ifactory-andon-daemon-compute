@@ -29,6 +29,7 @@ func FindWorkOrders(workorderId string) (wos []model.WorkOrder, err error) {
 }
 
 func FindWorkOrdersInfo() (wosInfo []model.WorkOrderInfo, err error) {
+	CallFinishAtService() //暫時解掉finishAt時間 GET返回前檢查並寫入Db完成時間
 	wos, err := FindWorkOrders("")
 	if err != nil {
 		glog.Info(err)

@@ -2,7 +2,7 @@ package model
 
 type collection struct {
 	Workorder      string
-	Workorder_list string
+	Workorder_list string //#已棄用
 }
 
 var C collection
