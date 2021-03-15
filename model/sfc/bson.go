@@ -55,7 +55,7 @@ type WorkOrder struct {
 
 //報工單
 type WorkOrderList struct {
-	Id          bson.ObjectId `json:"id,omitempty" bson:"_id,omitempty"`
+	Id          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	WorkOrderId string        `json:"WorkOrderId,omitempty" bson:"WorkOrderId"`
 
 	//#是否把station模組放到這取代以下四欄?(但是會動到很多地方)
